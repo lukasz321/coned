@@ -1,0 +1,15 @@
+[Unit]
+Description=PowerPlot React Webapp
+After=network.target
+
+[Service]
+Type=simple
+User=insert_target_user
+WorkingDirectory=/home/insert_target_user/.powerplot/webapp
+ExecStartPre=/usr/bin/env npm install
+ExecStartPre=/usr/bin/env npm run build
+ExecStart=/usr/bin/env npx serve
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
