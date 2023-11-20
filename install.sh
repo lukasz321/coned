@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# curl -sSL https://install.pi-hole.net | bash
+
+# This installer drew heavy inspiration and implementation from pihole's installer.
+# https://github.com/pi-hole/pi-hole
+
+# TODO:
+# - convert all printfs to print
 
 set -e
 export PATH+=':/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
@@ -7,16 +12,6 @@ export PATH+=':/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 GIT_REPO_URL="https://github.com/lukasz321/powerplot.git"
 GIT_LOCAL_REPO_DIR="/home/$USER/.powerplot"
 
-########################
-COL_NC='\e[0m' # No Color
-COL_LIGHT_GREEN='\e[1;32m'
-COL_LIGHT_RED='\e[1;31m'
-TICK="[${COL_LIGHT_GREEN}✓${COL_NC}]"
-CROSS="[${COL_LIGHT_RED}✗${COL_NC}]"
-INFO="[i]"
-# shellcheck disable=SC2034
-DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
-OVER="\\r\\033[K"
 
 is_valid_command() {
     # Checks to see if the given command (passed as a string argument) exists on the system.
@@ -93,8 +88,8 @@ update_repo() {
     print "info" "Updating repo in ${directory}..."
     
     # Stash any local commits as they conflict with our working code
-    git stash --all --quiet &> /dev/null || true # Okay for stash failure
-    git clean --quiet --force -d || true # Okay for already clean directory
+    git stash --all --quiet &> /dev/null || true
+    git clean --quiet --force -d > /dev/null || true
     
     # Pull the latest commits
     git pull --no-rebase --quiet &> /dev/null || return $?
@@ -102,7 +97,7 @@ update_repo() {
     # Check current branch. If it is trunk, then reset to the latest available tag.
     curBranch=$(git rev-parse --abbrev-ref HEAD)
     if [[ "${curBranch}" == "trunk" && "$(git describe > /dev/null)" ]]; then
-        git reset --hard "$(git describe --abbrev=0 --tags)" > /dev/null || return $?
+        git reset --hard "$(git describe --abbrev=0 --tags > /dev/null)" > /dev/null || return $?
     fi
     
     print "ok" "OK"
@@ -117,21 +112,13 @@ getGitFiles() {
     local directory="${1}"
     local remoteRepo="${2}"
     
-    local str="Check for existing repository in ${1}"
     # Show the message
-    printf "  %b %s..." "${INFO}" "${str}"
+    print "info" "Check for existing repository in ${directory}..."
     
     if is_a_repo "${directory}"; then
-        # Show that we're checking it
-        printf "%b  %b %s\\n" "${OVER}" "${TICK}" "${str}"
-        # Update the repo, returning an error message on failure
-        update_repo "${directory}" || { printf "\\n  %b: Could not update local repository. Contact support.%b\\n" "${COL_LIGHT_RED}" "${COL_NC}"; exit 1; }
-    # If it's not a .git repo,
+        update_repo "${directory}" || { print "error" "Could not update local repository."; exit 1; }
     else
-        # Show an error
-        printf "%b  %b %s\\n" "${OVER}" "${CROSS}" "${str}"
-        # Attempt to make the repository, showing an error on failure
-        clone_repo "${directory}" "${remoteRepo}" || { printf "\\n  %bError: Could not update local repository. Contact support.%b\\n" "${COL_LIGHT_RED}" "${COL_NC}"; exit 1; }
+        clone_repo "${directory}" "${remoteRepo}" || { print "error" "Could not update local repository."; exit 1; }
     fi
     echo ""
     # Success via one of the two branches, as the commands would exit if they failed.
@@ -141,98 +128,19 @@ getGitFiles() {
 clone_or_update_repos() {
     # If the user wants to reconfigure,
     if [[ "${reconfigure}" == true ]]; then
-        printf "  %b Performing reconfiguration, skipping download of local repos\\n" "${INFO}"
+        print "info" "Performing reconfiguration, skipping download of local repos,"
         # Reset the Core repo
         resetRepo ${GIT_LOCAL_REPO_DIR} || \
-        { printf "  %b Unable to reset %s, exiting installer%b\\n" "${COL_LIGHT_RED}" "${GIT_LOCAL_REPO_DIR}" "${COL_NC}"; \
+        { print "error" "Unable to reset ${GIT_LOCAL_REPO_DIR}, exiting installer." 1; \
         exit 1; \
         }
     # Otherwise, a repair is happening
     else
         # so get git files for Core
         getGitFiles ${GIT_LOCAL_REPO_DIR} ${GIT_REPO_URL} || \
-        { printf "  %b Unable to clone %s into %s, unable to continue%b\\n" "${COL_LIGHT_RED}" "${piholeGitUrl}" "${GIT_LOCAL_REPO_DIR}" "${COL_NC}"; \
+        { print "error" "Unable to clone ${GIT_REPO_URL} into ${GIT_LOCAL_REPO_DIR}, unable to continue." 1; \
         exit 1; \
         }
-    fi
-}
-
-# Start/Restart service passed in as argument
-restart_systemd_service() {
-    # Local, named variables
-    local str="Restarting ${1} service"
-    printf "  %b %s..." "${INFO}" "${str}"
-    # If systemctl exists,
-    if is_valid_command systemctl ; then
-        # use that to restart the service
-        systemctl restart "${1}" &> /dev/null
-    else
-        # Otherwise, fall back to the service command
-        service "${1}" restart &> /dev/null
-    fi
-    printf "%b  %b %s...\\n" "${OVER}" "${TICK}" "${str}"
-}
-
-# Enable service so that it will start with next reboot
-enable_systemd_service() {
-    # Local, named variables
-    local str="Enabling ${1} service to start on reboot"
-    printf "  %b %s..." "${INFO}" "${str}"
-    # If systemctl exists,
-    if is_valid_command systemctl ; then
-        # use that to enable the service
-        systemctl enable "${1}" &> /dev/null
-    else
-        #  Otherwise, use update-rc.d to accomplish this
-        update-rc.d "${1}" defaults &> /dev/null
-    fi
-    printf "%b  %b %s...\\n" "${OVER}" "${TICK}" "${str}"
-}
-
-# Disable service so that it will not with next reboot
-disable_systemd_service() {
-    # Local, named variables
-    local str="Disabling ${1} service"
-    printf "  %b %s..." "${INFO}" "${str}"
-    # If systemctl exists,
-    if is_valid_command systemctl ; then
-        systemctl disable "${1}" &> /dev/null
-    else
-        # Otherwise, use update-rc.d to accomplish this
-        update-rc.d "${1}" disable &> /dev/null
-    fi
-    printf "%b  %b %s...\\n" "${OVER}" "${TICK}" "${str}"
-}
-
-check_systemd_service_active() {
-    if is_valid_command systemctl ; then
-        systemctl is-enabled "${1}" &> /dev/null
-    else
-        service "${1}" status &> /dev/null
-    fi
-}
-
-update_package_cache() {
-    # Update package cache on apt based OSes. Do this every time since
-    # it's quick and packages can be updated at any time.
-
-    # Local, named variables
-    local str="Update local cache of available packages"
-    printf "  %b %s..." "${INFO}" "${str}"
-    # Create a command from the package cache variable
-    if eval "${UPDATE_PKG_CACHE}" &> /dev/null; then
-        printf "%b  %b %s\\n" "${OVER}" "${TICK}" "${str}"
-    else
-        # Otherwise, show an error and exit
-
-        # In case we used apt-get and apt is also available, we use this as recommendation as we have seen it
-        # gives more user-friendly (interactive) advice
-        if [[ ${PKG_MANAGER} == "apt-get" ]] && is_valid_command apt ; then
-            UPDATE_PKG_CACHE="apt update"
-        fi
-        printf "%b  %b %s\\n" "${OVER}" "${CROSS}" "${str}"
-        printf "  %b Error: Unable to update package cache. Please try \"%s\"%b\\n" "${COL_LIGHT_RED}" "sudo ${UPDATE_PKG_CACHE}" "${COL_NC}"
-        return 1
     fi
 }
 
@@ -249,16 +157,13 @@ package_manager_detect() {
         PKG_COUNT="${PKG_MANAGER} -s -o Debug::NoLocking=true upgrade | grep -c ^Inst || true"
         # Update package cache
         
-        #update_package_cache || exit 1
-        
         # Packages required to run this install script (stored as an array)
         INSTALLER_DEPS=(git ca-certificates)
         # Packages required to run Pi-hole (stored as an array)
         SYSTEM_DEPS=(python3-dev python3-pip python3-venv npm)
     else
         # we cannot install required packages
-        printf "  %b No supported package manager found\\n" "${CROSS}"
-        # so exit the installer
+        print "error" "No supported package manager found!" 1
         exit
     fi
 }
@@ -266,7 +171,7 @@ package_manager_detect() {
 # This function waits for dpkg to unlock, which signals that the previous apt-get command has finished.
 test_dpkg_lock() {
     i=0
-    printf "  %b Waiting for package manager to finish (up to 30 seconds)\\n" "${INFO}"
+    print "info" "Waiting for package manager to finish (up to 30 seconds)" 1
     # fuser is a program to show which processes use the named files, sockets, or filesystems
     # So while the lock is held,
     while fuser /var/lib/dpkg/lock >/dev/null 2>&1
@@ -277,8 +182,8 @@ test_dpkg_lock() {
         ((i=i+1))
         # exit if waiting for more then 30 seconds
         if [[ $i -gt 60 ]]; then
-            printf "  %b %bError: Could not verify package manager finished and released lock. %b\\n" "${CROSS}" "${COL_LIGHT_RED}" "${COL_NC}"
-            printf "       Attempt to install packages manually and retry.\\n"
+            print "error" "Error: Could not verify package manager finished and released lock." 1
+            print "continued"  "Attempt to install packages manually and retry."
             exit 1;
         fi
     done
@@ -299,11 +204,11 @@ install_dependent_packages() {
     if is_valid_command apt-get ; then
         # For each package, check if it's already installed (and if so, don't add it to the installArray)
         for i in "$@"; do
-            printf "  %b Checking for %s..." "${INFO}" "${i}"
+            print "info" "Checking for $i..." 1
             if dpkg-query -W -f='${Status}' "${i}" 2>/dev/null | grep "ok installed" &> /dev/null; then
-                printf "%b  %b Checking for %s\\n" "${OVER}" "${TICK}" "${i}"
+                print "inline-ok" "Checking for $i..." 1
             else
-                printf "%b  %b Checking for %s (will be installed)\\n" "${OVER}" "${INFO}" "${i}"
+                print "inline-ok" "Checking for $i (will be installed)." 1
                 installArray+=("${i}")
             fi
         done
@@ -312,134 +217,150 @@ install_dependent_packages() {
             test_dpkg_lock
             # Running apt-get install with minimal output can cause some issues with
             # requiring user input (e.g password for phpmyadmin see #218)
-            printf "  %b Processing %s install(s) for: %s, please wait...\\n" "${INFO}" "${PKG_MANAGER}" "${installArray[*]}"
+            print "info" "Processing apt-get install(s) for: ${installArray[*]}, please wait..." 1
             printf '%*s\n' "${c}" '' | tr " " -;
             "${PKG_INSTALL[@]}" "${installArray[@]}"
             printf '%*s\n' "${c}" '' | tr " " -;
             return
         fi
-        printf "\\n"
         return 0
     fi
 
     # If there's anything to install, install everything in the list.
     if [[ "${#installArray[@]}" -gt 0 ]]; then
-        printf "  %b Processing %s install(s) for: %s, please wait...\\n" "${INFO}" "${PKG_MANAGER}" "${installArray[*]}"
+        print "info" "Processing apt-get install(s) for: ${installArray[*]}, please wait..." 1
         printf '%*s\n' "${c}" '' | tr " " -;
         "${PKG_INSTALL[@]}" "${installArray[@]}"
         printf '%*s\n' "${c}" '' | tr " " -;
         return
     fi
-    printf "\\n"
     return 0
 }
 
-install_python_module() {
-    local python_dir="${GIT_LOCAL_REPO_DIR}/server/"
+build_and_install_webapp() {
+    local source_dir="$1"
+    local install_dir="$2"
     
-    pushd "${python_dir}" &> /dev/null || return 1
+    pushd "${source_dir}" &> /dev/null || return 1
+
+    print "info" "Installing dependencies..." 1
+    npm install > /dev/null
+    print "inline-ok" "Installing dependencies..." 1
     
-    print "info" "Spinning up venv..."
-    python3 -m venv .venv > /dev/null
-    print "ok" "Spinning up venv...\n"
+    #print "info" "Creating a production build..." 1
+    #npm run build > /dev/null
+    #print "inline-ok" "Creating a production build..." 1
 
-    # Activate the virtual environment
-    source ".venv/bin/activate"
+    print "info" "Installing to $install_dir..." 1
+    # Install the .venv directory in target directory.
+    rm -rf "$install_dir"
+    mkdir -p "$install_dir"
+    cp -r "$source_dir"/* "$install_dir"
+    #cp -r "$source_dir/build" "$install_dir"
+    print "inline-ok" "Installing to $install_dir..." 1
 
-    print "info" "Installing requirements...\n"
-    pip3 install -r requirements.txt
-
-    print "info" "Installing the module...\n"
-    pip3 install -e . > /dev/null
-    printf "  %b OK\\n" "${TICK}" "${OVER}"
-
-    printf "  %b Taking you to the installation wizard...\\n" "${INFO}"
-    python3 -m powerplot.installation_wizard
-    
     popd &> /dev/null || return 1
 }
 
 install_systemd_services() {
-    local services_dir="${GIT_LOCAL_REPO_DIR}/systemd/"
+    # Given a path to a directory, install all .service files to /etc/systemd/system
+    local services_dir="$1"
     
-    printf "  %b Installing systemd services...\\n" "${INFO}"
-
-    # Iterate over all files ending with *.service in the services_dir directory
     for service_file in "${services_dir}"/*.service; do
         if [ -f "$service_file" ]; then
-            # Extract the service name from the file name
             service_name=$(basename "${service_file}")
-            printf "  %b Installing ${service_name}...\\n" "${INFO}"
+            print "info" "Installing ${service_name}..." 1
             sudo install -T -m 0644 "${service_file}" "/etc/systemd/system/${service_name}"
             sudo sed -i 's/insert_target_user/'"$USER"'/g' "/etc/systemd/system/${service_name}"
-
             sudo systemctl enable "${service_name}"
             sudo systemctl restart "${service_name}"
+            print "inline-ok" "Installing ${service_name}..." 1
+            sleep 2
+            
+            local status=$(systemctl is-active ${service_name})
+            if [ $status == 'active' ]; then
+                print "ok" "${service_name}: ${status}" 1
+            else
+                print "error" "${service_name}: ${status}" 1
+            fi
         fi
     done
-
-    # Reload systemd daemon
-    sudo systemctl daemon-reload
 }
 
-xx() {
-    # If the user's id is zero,
-    if [[ "${EUID}" -eq 0 ]]; then
-        # they are root and all is good
-        printf "  %b %s\\n" "${TICK}" "${str}"
-    else
-        # Otherwise, they do not have enough privileges, so let the user know
-        printf "  %b %s\\n" "${INFO}" "${str}"
-        printf "  %b %bScript called with non-root privileges%b\\n" "${INFO}" "${COL_LIGHT_RED}" "${COL_NC}"
-        printf "      PowerPlot requires elevated privileges to install and run.\\n"
-        printf "      Please check the installer for any concerns regarding this requirement.\\n"
-        printf "  %b Sudo utility check" "${INFO}"
+install_python_package() {
+    # Given a path to a python package and a path to target directory, spin up
+    # venv, install requirements and install the "built" package into the target dir.
 
-        # If the sudo command exists, try rerunning as admin
-        if is_valid_command sudo ; then
-            printf "%b  %b Sudo utility check\\n" "${OVER}"  "${TICK}"
+    local package_dir="$1"
+    local install_dir="$2"
 
-            if [[ "$0" == "bash" ]]; then
-                exec curl -sSL https://raw.githubusercontent.com/lukasz321/powerplot/trunk/install.sh | bash "$@"
-            else
-                exec "$0" "$@"
-            fi
+    pushd "${package_dir}" &> /dev/null || return 1
 
-            exit $?
-        else
-            # Otherwise, tell the user they need to run the script as root, and bail
-            printf "%b  %b Sudo utility check\\n" "${OVER}" "${CROSS}"
-            printf "  %b Sudo is needed for the Web Interface to run pihole commands\\n\\n" "${INFO}"
-            printf "  %b %bPlease re-run this installer as root${COL_NC}\\n" "${INFO}" "${COL_LIGHT_RED}"
-            exit 1
-        fi
-    fi
+    print "info" "Spinning up venv..." 1
+    python3 -m venv .venv > /dev/null
+    print "inline-ok" "Spinning up venv..." 1
+
+    # Activate the virtual environment
+    source ".venv/bin/activate"
+
+    print "info" "Installing requirements..." 1
+    pip3 install -r requirements.txt > /dev/null
+    print "inline-ok" "Installing requirements..." 1
+
+    print "info" "Installing the python3 module..." 1
+    pip3 install -e . > /dev/null
+    print "inline-ok" "Installing the python3 module..." 1
+
+    # Install the .venv directory in target directory.
+    rm -rf "$install_dir"; mkdir -p "$install_dir"
+    mv "$package_dir"/.venv/* "$install_dir"
+
+    popd &> /dev/null || return 1
 }
+
 
 print() {
-    TICK="[${COL_LIGHT_GREEN}✓${COL_NC}]"
-    CROSS="[${COL_LIGHT_RED}✗${COL_NC}]"
-    INFO="[i]"
-    # shellcheck disable=SC2034
-    DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
+    local type="$1"
+    local msg="$2"
+    local indent="$3"
     
-    if [[ $1 == "ok" ]]; then
-        printf "${TICK} ${2}\n"
-    elif [[ $1 == "error" ]]; then
-        printf "${CROSS} ${2}\n"
-    elif [[ $1 == "info" ]]; then
-        printf "${INFO} ${2}\n"
-    elif [[ $1 == "continued" ]]; then
-        printf "   ${2}\n"
-    else
-        echo "Invalid argument: $1. Please provide 'info', 'error', or 'ok'."
+    COL_NC='\e[0m'
+    COL_LIGHT_GREEN='\e[1;32m'
+    COL_LIGHT_RED='\e[1;31m'
+    
+    if [[ $indent == 1 ]]; then
+        indent="   "
+    elif [[ $indent == 2 ]]; then
+        indent="      "
+    else 
+        indent=""
     fi
+
+    local insert=""
+    if [[ $type == "ok" || $type == "inline-ok" ]]; then
+        insert="[${COL_LIGHT_GREEN}✓${COL_NC}]"
+    elif [[ $type == "error" ]]; then
+        insert="[${COL_LIGHT_RED}✗${COL_NC}]"
+    elif [[ $type == "info" ]]; then
+        insert="[i]"
+    elif [[ $type == "continued" ]]; then
+        insert="   "
+    fi
+    
+    if [[ ! "$type" == *"inline"* ]]; then
+        printf "\n${indent}${insert} ${msg}"
+    else
+        printf "\\r\\033[K${indent}${insert} ${msg}"
+    fi 
 }
+
+
 
 main() {
     if [[ "${EUID}" -eq 0 && "${SUDO_USER}" ]]; then
         # they are root and all is good
         print "error" "This installer is not meant to run as root if you're not root."
+        print "continued" "Run './install.sh' without 'sudo'"
         exit 1
     fi
     
@@ -449,23 +370,39 @@ main() {
     # Install packages used by this installation script
     print "info" "Checking for / installing required dependencies for this install script..."
     install_dependent_packages "${INSTALLER_DEPS[@]}"
+    print "ok" "Done\n"
 
-    # Download or update the scripts by updating the appropriate git repos
-    clone_or_update_repos
+    if [[ "$0" == "bash" ]]; then
+        # Download or update the scripts by updating the appropriate git repos
+        clone_or_update_repos
+        ROOT_DIR=$GIT_LOCAL_REPO_DIR
+    else
+        ROOT_DIR=$(dirname "$0")
+    fi
 
     # Install packages used by the actual software
-    print "info" "Checking for / installing required dependencies for this install script..."
+    print "info" "Checking for / installing required dependencies for the server..."
     install_dependent_packages "${SYSTEM_DEPS[@]}"
-
-    install_python_module
+    print "ok" "Done\n"
     
-    install_systemd_services
+    # Why "sourced":
+    # This little hack avoids calling this script in circular loop,
+    # as we need to not execute main() on mere function imports in sub-install scripts.
+    print "info" "Installing the scraper..."
+    source "$ROOT_DIR/pp-scraper/install.sh" "sourced"
+    print "ok" "Done\n"
+
+    print "info" "Installing the api..."
+    source "$ROOT_DIR/pp-api/install.sh" "sourced"
+    print "ok" "Done\n"
+    
+    print "info" "Installing the webapp..."
+    source "$ROOT_DIR/pp-webapp/install.sh" "sourced"
+    print "ok" "Done\n"
 }
 
-
-# allow to source this script without running it
-if [[ "${SKIP_INSTALL}" != true ]] ; then
+# Check if the script is being sourced or executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" || ( "${0}" == *"bash"* && "${1}" != "sourced" ) ]]; then
+    # The script is executed directly, not sourced
     main "$@"
 fi
-
-

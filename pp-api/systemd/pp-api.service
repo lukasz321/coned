@@ -1,0 +1,13 @@
+[Unit]
+Description=[PowerPlot] Serve Power Usage Data to Webapp
+After=network.target
+
+[Service]
+Type=simple
+User=insert_target_user
+ExecStart=/home/insert_target_user/.powerplot/pp_api/bin/python -um powerplot_api
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

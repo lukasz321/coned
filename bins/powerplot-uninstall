@@ -1,0 +1,10 @@
+#!/bin/bash
+
+systemctl stop pp-api
+systemctl stop pp-scraper
+systemctl stop pp-webapp
+
+systemctl disable pp-api
+systemctl disable pp-scraper
+systemctl disable pp-webapp
+

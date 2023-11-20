@@ -1,0 +1,13 @@
+[Unit]
+Description=[PowerPlot] Poll Power Usage Data from Electricity Provider
+After=network.target
+
+[Service]
+Type=simple
+User=insert_target_user
+ExecStart=/home/insert_target_user/.powerplot/pp_scraper/bin/python -um powerplot_scraper
+Restart=on-failure
+RestartSec=3600
+
+[Install]
+WantedBy=multi-user.target
