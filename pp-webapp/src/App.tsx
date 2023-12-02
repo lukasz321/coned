@@ -122,6 +122,11 @@ const App: React.FC = () => {
 
   return (
     <div className="main">
+    {data &&
+    <div style={{display: "flex", justifyContent: "flex-end", paddingBottom: "8px", paddingRight: "20px", fontSize: "0.85em", color: "#FFF"}}>
+    {`Data last polled: ${data.lastUpdated} (${(data.lastUpdatedSecondsAgo/3600).toFixed(1)} hours ago)`} 
+    </div>
+    }
       {/*
         <div
           style={{
