@@ -158,9 +158,7 @@ const App: React.FC = () => {
             color: "#FFF",
           }}
         >
-          {`Data last fetched on ${data.lastUpdated} (${(
-            data.lastUpdatedSecondsAgo / 3600
-          ).toFixed(1)} hours ago)`}
+          {`Data last fetched on ${data.lastUpdated}`}
         </div>
       )}
       {/*
