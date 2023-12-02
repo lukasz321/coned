@@ -3,7 +3,7 @@
 <br />
 <h1>
 <p align="center">
-  <img src="img/logo.png" alt="logo" width="600" >
+  <img src="img/logo-github.png" alt="logo" width="600" >
 </h1>
   <p align="center">
     Designed to help you visualize and understand your electric energy consumption.
