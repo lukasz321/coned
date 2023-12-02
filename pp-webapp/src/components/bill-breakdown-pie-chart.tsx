@@ -10,7 +10,7 @@ const BillBreakdownPieChart: React.FC<{
   billBreakdown: Record<string, number>;
 }> = ({ projectedBillDollars, billBreakdown }) => {
   return (
-    <ResponsiveContainer minHeight="320px">
+    <ResponsiveContainer minHeight="400px">
       <PieChart>
         <Pie
           dataKey="value"

@@ -83,14 +83,13 @@ const App: React.FC = () => {
   // This is the month user sleects in MonthlyBarChart by clicking on a bar
   // undefined - signals to "set up the default", whatever that is, whereas null
   // indicates that user explicitly deselected all months (none are selected)
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   const [selectedMonth, setSelectedMonth] = useState<undefined | null | string>(
     undefined,
   );
 
   // When use has the cursor above the MonthlyBarChart but no click (yet)
-  const [highlightedMonth, setHighlightedMonth] = useState<null | string>(
-    null,
-  );
+  const [highlightedMonth, setHighlightedMonth] = useState<null | string>(null);
 
   // This is the data user selects in HourlyBarChart via a slider
   const [selectedBrushData, setSelectedBrushData] = useState<{
@@ -120,13 +119,50 @@ const App: React.FC = () => {
       });
   }, []);
 
-  return (
-    <div className="main">
-    {data &&
-    <div style={{display: "flex", justifyContent: "flex-end", paddingBottom: "8px", paddingRight: "20px", fontSize: "0.85em", color: "#FFF"}}>
-    {`Data last polled on ${data.lastUpdated} (${(data.lastUpdatedSecondsAgo/3600).toFixed(1)} hours ago)`} 
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  return windowWidth < 768 ? (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        fontSize: "2em",
+        paddingLeft: "2em",
+        paddingRight: "2em",
+      }}
+    >
+      Mobile is not supported, visit me on desktop!
     </div>
-    }
+  ) : (
+    <div className="main">
+      {data && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            paddingBottom: "8px",
+            paddingRight: "20px",
+            fontSize: "0.85em",
+            color: "#FFF",
+          }}
+        >
+          {`Data last fetched on ${data.lastUpdated} (${(
+            data.lastUpdatedSecondsAgo / 3600
+          ).toFixed(1)} hours ago)`}
+        </div>
+      )}
       {/*
         <div
           style={{

@@ -23,7 +23,7 @@ const theme = {
   lineColorInactive: "var(--secondary-color)",
   lineWidthActive: 6,
   lineWidthInactive: 2,
-  lineOpacityActive: 0.9,
+  lineOpacityActive: 0.7,
   lineOpacityInactive: 0.5,
 
   pieColorActive: "var(--primary-color)",
