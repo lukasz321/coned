@@ -12,7 +12,7 @@ const theme = {
   barColorActive: "var(--primary-color)",
   barColorInactive: "var(--secondary-color)",
   barOpacityActive: 0.9,
-  barOpacityInactive: 0.6,
+  barOpacityInactive: 0.5,
 
   bubbleColorActive: "var(--primary-color)",
   bubbleColorInactive: "var(--secondary-color)",
@@ -24,7 +24,7 @@ const theme = {
   lineWidthActive: 6,
   lineWidthInactive: 2,
   lineOpacityActive: 0.9,
-  lineOpacityInactive: 0.6,
+  lineOpacityInactive: 0.5,
 
   pieColorActive: "var(--primary-color)",
   pieColorInactive: "var(--secondary-color)",

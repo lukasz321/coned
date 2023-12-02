@@ -153,7 +153,7 @@ highlightedMonth,
                 ? styles.lineOpacityActive
                 : currentMonth === monthName && selectedMonth === undefined
                 ? styles.lineOpacityActive
-                : (highlightedMonth === monthName ? 1 : styles.lineOpacityInactive)
+                : (highlightedMonth === monthName ? 1 : styles.lineOpacityInactive/2)
             }
             stroke={
               selectedMonth === monthName

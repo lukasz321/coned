@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 
 import {
   Bar,
@@ -31,6 +31,15 @@ const HourlyBarChart: React.FC<{
   const [brushWidth, setBrushWidth] = useState<
     "day" | "week" | "month" | "year"
   >("day");
+  
+  const maxValue = useMemo(
+    () =>
+      data.reduce(
+        (max, current) => (current.value > max ? current.value : max),
+        data[0].value,
+      ),
+    [data],
+  );
 
   useEffect(() => {
     if (dataShown) {
@@ -80,7 +89,7 @@ const HourlyBarChart: React.FC<{
               if (evt.endIndex && evt.startIndex) {
                 const indexWidth = evt.endIndex - evt.startIndex;
 
-                if (indexWidth <= 6 * 24) {
+                if (indexWidth <= 6 * 24 && evt.startIndex > data.length - 24*6) {
                   setBrushWidth("day");
                 } else if (indexWidth <= 28 * 24) {
                   setBrushWidth("week");
@@ -164,7 +173,7 @@ const HourlyBarChart: React.FC<{
           />
           <YAxis
             ticks={[1, 2, 3]} // TODO autocalculate this
-            domain={[0, 3]}
+            domain={[0, Math.ceil(maxValue)]}
             unit={" kW"}
             allowDecimals={false}
             tick={{ fill: styles.barColorInactive }}

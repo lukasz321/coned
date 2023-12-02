@@ -114,10 +114,20 @@ class PowerData:
         """ """
 
         df_monthly = self.monthly()
+        df_daily = self.daily()
 
         # Extrapolate the usage based on the current day of the month.
+        # TODO: this shouldnt include "today", as that skews the projection badly
+        #       in early months due to the current day often being 'partial'
         last_data_day = self.df.index[-1].day
-        extrapolated_usage_kwh = df_monthly.iloc[-1].value / last_data_day * 31
+        NUM_TRAILING_DAYS = 14
+        # Until there's at least X full days of data in this, use an X-day rolling average to estimate
+        if last_data_day < NUM_TRAILING_DAYS:
+            # Note that the latest day is excluded as the data is likely to be partial
+            average_daily_usage_kwh = df_daily.tail(NUM_TRAILING_DAYS + 1).head(NUM_TRAILING_DAYS)['value'].mean()
+            extrapolated_usage_kwh = average_daily_usage_kwh * 31
+        else:
+            extrapolated_usage_kwh = df_monthly.iloc[-1].value / last_data_day * 31
 
         # These charges are supplier dependent most likely. 
         # Introduce the notion of supplier to the API once new integrations are added.
