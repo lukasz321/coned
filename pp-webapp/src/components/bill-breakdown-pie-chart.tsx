@@ -1,6 +1,6 @@
 import { Label, Cell, ResponsiveContainer, PieChart, Pie } from "recharts";
 
-import { titleCase } from 'lib/utils';
+import { titleCase } from "lib/utils";
 
 import "../App.css";
 import styles from "styles";
@@ -51,7 +51,9 @@ const BillBreakdownPieChart: React.FC<{
                   textAnchor={x > cx ? "start" : "end"}
                   dominantBaseline="central"
                 >
-                  {`${titleCase(Object.keys(billBreakdown)[index].split("_").join(" "))}` +
+                  {`${titleCase(
+                    Object.keys(billBreakdown)[index].split("_").join(" "),
+                  )}` +
                     `, ${((value / projectedBillDollars) * 100).toFixed(1)}%`}
                 </text>
                 <text

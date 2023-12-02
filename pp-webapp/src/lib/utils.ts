@@ -2,7 +2,29 @@ import { abbrevDaysOfWeek, daysOfWeek } from "./constants";
 
 export function titleCase(input: string): string {
   // Capitalize first letter of each word.
-  return input.toLowerCase().replace(/(?:^|\s)\w/g, (match) => match.toUpperCase());
+  // 'this test sentence' -> 'This Test Sentence'
+  return input
+    .toLowerCase()
+    .replace(/(?:^|\s)\w/g, (match) => match.toUpperCase());
+}
+
+export function displayDate(date: Date): string {
+  // Display date as, for example, 'Nov 29, 10:00 PM'
+  const options: Intl.DateTimeFormatOptions = {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  };
+
+  const formattedDate = date.toLocaleString("en-US", options);
+
+  // Extract AM/PM information and adjust the format
+  const time = formattedDate.split(", ")[1];
+  const ampm = time.slice(-2);
+  const timeWithoutAmPm = time.slice(0, -2);
+
+  return `${formattedDate.split(", ")[0]}, ${timeWithoutAmPm}${ampm}`;
 }
 
 export function withOrdinalSuffix(day: number): string {
@@ -24,11 +46,14 @@ export function withOrdinalSuffix(day: number): string {
 }
 
 export function calculateMean(arrayOfNumbers: number[]): number {
+  // Calculate mean of an array of numbers...
   const total = arrayOfNumbers.reduce((acc, c) => acc + c, 0);
   return total / arrayOfNumbers.length;
 }
 
 export function toWeekdayName(date: Date, abbreviated: boolean = false) {
+  // Given a date, return the name of the day of the week.
+  // Exceptions: Today/Yesterday, based on current date.
   const today = new Date();
 
   if (

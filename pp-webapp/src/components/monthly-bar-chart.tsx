@@ -126,11 +126,10 @@ const MonthlyBarChart: React.FC<{
           allowDecimals={false}
           tick={{ fill: styles.barColorInactive }}
           orientation={"right"}
-          domain={[0, maxValue*1.1]}
+          domain={[0, maxValue * 1.1]}
           tickCount={6} // Adjust the tick count based on the number of ticks you want
           tickFormatter={(value) => Math.floor(value).toString()} // Apply the custom tick formatter
         />
-
       </BarChart>
     </ResponsiveContainer>
   );

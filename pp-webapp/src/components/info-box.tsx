@@ -22,8 +22,8 @@ const InfoBox: React.FC<{
           style={{
             fontSize: "19px",
             fontWeight: 300,
-            width: 'fit-content',
-              margin: 'auto',
+            width: "fit-content",
+            margin: "auto",
           }}
         >
           {leadingText}
@@ -43,8 +43,8 @@ const InfoBox: React.FC<{
           style={{
             fontSize: "19px",
             fontWeight: 300,
-            width: 'fit-content',
-              margin: 'auto',
+            width: "fit-content",
+            margin: "auto",
           }}
         >
           {trailingText}
