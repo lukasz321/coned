@@ -124,7 +124,7 @@ const App: React.FC = () => {
     <div className="main">
     {data &&
     <div style={{display: "flex", justifyContent: "flex-end", paddingBottom: "8px", paddingRight: "20px", fontSize: "0.85em", color: "#FFF"}}>
-    {`Data last polled: ${data.lastUpdated} (${(data.lastUpdatedSecondsAgo/3600).toFixed(1)} hours ago)`} 
+    {`Data last polled on ${data.lastUpdated} (${(data.lastUpdatedSecondsAgo/3600).toFixed(1)} hours ago)`} 
     </div>
     }
       {/*
@@ -175,7 +175,7 @@ const App: React.FC = () => {
                 </span>
                 {` (approx. `}
                 {numHoursToTimeString(selectedBrushData.width)}
-                {`), the mean energy consumption was `}
+                {` period), the mean energy consumption was `}
               </span>
               <span style={{ display: "flex", alignItems: "center" }}>
                 &nbsp; &nbsp;

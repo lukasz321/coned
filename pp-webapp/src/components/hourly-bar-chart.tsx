@@ -31,7 +31,8 @@ const HourlyBarChart: React.FC<{
   const [brushWidth, setBrushWidth] = useState<
     "day" | "week" | "month" | "year"
   >("day");
-  
+
+  const SHOW_LAST_NUM_DAYS = 5; //...on page load
   const maxValue = useMemo(
     () =>
       data.reduce(
@@ -43,7 +44,7 @@ const HourlyBarChart: React.FC<{
 
   useEffect(() => {
     if (dataShown) {
-      dataShown(data.slice(data.length - 24 * 3));
+      dataShown(data.slice(data.length - 24 * SHOW_LAST_NUM_DAYS));
     }
   }, [data]);
 
@@ -84,7 +85,7 @@ const HourlyBarChart: React.FC<{
             fill="rgba(0, 0, 88, 0.4)"
             stroke="rgba(200, 200, 200, 0.8)"
             travellerWidth={10}
-            startIndex={data.length - 24 * 3} // looking at the past 48 hours by default
+            startIndex={data.length - 24 * SHOW_LAST_NUM_DAYS} // looking at the past 48 hours by default
             onChange={(evt) => {
               if (evt.endIndex && evt.startIndex) {
                 const indexWidth = evt.endIndex - evt.startIndex;

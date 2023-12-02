@@ -1,7 +1,7 @@
 :root {
-  --large-font: 22pt;
-  --medium-font: 16pt;
-  --small-font: 12pt;
+  --large-font: 2.2em;
+  --medium-font: 1.5em;
+  --small-font: 1em;
 
   --color-electric-blue: #007bff;
   --color-eco-green: #00cc66;
