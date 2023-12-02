@@ -41,6 +41,13 @@ body {
   padding: 50px 0 50px 0;
 }
 
+.transparent {
+  background-color: transparent;
+  border: none;
+  border-radius: none;
+  padding: 0;
+}
+
 .placeholder {
   font-size: var(--large-font);
   height: 100%;

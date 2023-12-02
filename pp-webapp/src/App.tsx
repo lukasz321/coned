@@ -215,7 +215,7 @@ const App: React.FC = () => {
         )}
       </div>
 
-      <div className="section">
+      <div className="section transparent">
         {data ? (
           <div
             style={{

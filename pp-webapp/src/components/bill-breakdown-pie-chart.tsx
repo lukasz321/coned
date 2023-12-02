@@ -10,7 +10,7 @@ const BillBreakdownPieChart: React.FC<{
   billBreakdown: Record<string, number>;
 }> = ({ projectedBillDollars, billBreakdown }) => {
   return (
-    <ResponsiveContainer minHeight="280px">
+    <ResponsiveContainer minHeight="320px">
       <PieChart>
         <Pie
           dataKey="value"
@@ -39,13 +39,13 @@ const BillBreakdownPieChart: React.FC<{
               <>
                 <text
                   style={{
-                    fontSize: "11pt",
+                    fontSize: "0.90em",
                     font: "Helvetica",
                     fontWeight: "10",
                     opacity: "0.7",
                   }}
                   x={x}
-                  y={y - 10}
+                  y={ y < cy ? y - 20 : y }
                   stroke={styles.pieColorInactive}
                   fill={styles.pieColorInactive}
                   textAnchor={x > cx ? "start" : "end"}
@@ -58,12 +58,12 @@ const BillBreakdownPieChart: React.FC<{
                 </text>
                 <text
                   style={{
-                    fontSize: "13pt",
+                    fontSize: "1em",
                     font: "Helvetica",
                     fontWeight: "100",
                   }}
                   x={x}
-                  y={y + 10}
+                  y={ y < cy ? y  : y + 20}
                   stroke={styles.pieColorInactive}
                   fill={styles.pieColorInactive}
                   textAnchor={x > cx ? "start" : "end"}
