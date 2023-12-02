@@ -87,6 +87,11 @@ const App: React.FC = () => {
     undefined,
   );
 
+  // When use has the cursor above the MonthlyBarChart but no click (yet)
+  const [highlightedMonth, setHighlightedMonth] = useState<null | string>(
+    null,
+  );
+
   // This is the data user selects in HourlyBarChart via a slider
   const [selectedBrushData, setSelectedBrushData] = useState<{
     average: number;
@@ -261,11 +266,15 @@ const App: React.FC = () => {
             <DailyLineChart
               data={data.data.daily}
               selectedMonth={selectedMonth}
+              highlightedMonth={highlightedMonth}
             />
             <MonthlyBarChart // TODO: show monthly bars only if there are months to compare...
               data={data.data.monthly}
               onSelectedMonthChanged={(selectedMonth) =>
                 setSelectedMonth(selectedMonth)
+              }
+              onHighlightedMonthChanged={(highlightedMonth) =>
+                setHighlightedMonth(highlightedMonth)
               }
             />
           </div>

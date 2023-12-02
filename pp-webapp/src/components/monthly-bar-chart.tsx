@@ -15,12 +15,16 @@ import styles from "styles";
 
 import { tooltipStyle } from "lib/rechart-styles";
 import { PowerDataItem } from "lib/types";
-import { monthNames, abbrevMonthNames } from "lib/constants";
+import { monthNames, abbrevMonthNames, superAbbrevMonthNames } from "lib/constants";
 
 const MonthlyBarChart: React.FC<{
   data: PowerDataItem[];
   onSelectedMonthChanged?: (selectedMonth: string | null) => void;
-}> = ({ data, onSelectedMonthChanged }) => {
+  onHighlightedMonthChanged?: (highlightedMonth: string | null) => void;
+}> = ({ data, 
+onSelectedMonthChanged,
+onHighlightedMonthChanged,
+}) => {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(
     data.length - 1,
   );
@@ -42,7 +46,7 @@ const MonthlyBarChart: React.FC<{
         maxBarSize={50}
         margin={{
           top: 0,
-          right: 0,
+          right: 20,
           left: 0,
           bottom: 20,
         }}
@@ -59,14 +63,23 @@ const MonthlyBarChart: React.FC<{
             }
           }}
           onMouseEnter={(evt, idx) => {
-            //setHighlightedIdx(idx);
+            setHighlightedIdx(idx);
+            if (onHighlightedMonthChanged) {
+              onHighlightedMonthChanged(
+                selectedIdx === idx ? null : monthNames[evt.month],
+              );
+            }
           }}
           onMouseLeave={(evt, idx) => {
-            //setHighlightedIdx(null);
+            setHighlightedIdx(null);
+            if (onHighlightedMonthChanged) {
+              onHighlightedMonthChanged(null);
+            }
           }}
           label={{
             position: "top",
-            fill: styles.barColorInactive,
+            fill: "white",
+            opacity: 1,
           }}
         >
           {data.map((entry, idx) => (
@@ -109,9 +122,8 @@ const MonthlyBarChart: React.FC<{
           tick={{ fill: styles.barColorInactive }}
           dataKey="date"
           tickFormatter={(date) => {
-            const monthNameFunction =
-              data.length > 2 ? abbrevMonthNames : abbrevMonthNames;
-
+              // start abbreviating months once there's enough columns
+            const monthNameFunction = data.length > 4 ? superAbbrevMonthNames : (data.length > 2 ? abbrevMonthNames : abbrevMonthNames);
             const monthName = monthNameFunction[new Date(date).getMonth()];
             return monthName;
           }}
@@ -126,9 +138,10 @@ const MonthlyBarChart: React.FC<{
           allowDecimals={false}
           tick={{ fill: styles.barColorInactive }}
           orientation={"right"}
-          domain={[0, maxValue * 1.1]}
-          tickCount={6} // Adjust the tick count based on the number of ticks you want
-          tickFormatter={(value) => Math.floor(value).toString()} // Apply the custom tick formatter
+          domain={[0, Math.ceil(maxValue * 1.1/100)*100]}
+          tickCount={Math.ceil(maxValue * 1.1/100) + 1}
+          tickFormatter={(value) => Math.floor(value).toString()}
+          //unit={"kWh"}
         />
       </BarChart>
     </ResponsiveContainer>

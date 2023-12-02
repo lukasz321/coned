@@ -23,6 +23,7 @@ export const monthNames = [
 ];
 export const abbrevDaysOfWeek = daysOfWeek.map((d) => d.slice(0, 3));
 export const abbrevMonthNames = monthNames.map((m) => m.slice(0, 3));
+export const superAbbrevMonthNames = monthNames.map((m) => m.slice(0, 1));
 
 export const hourlyPeriods = [
   "12a",

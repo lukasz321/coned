@@ -22,7 +22,12 @@ import { tooltipStyle } from "lib/rechart-styles";
 const DailyLineChart: React.FC<{
   data: PowerDataItem[];
   selectedMonth?: string | null;
-}> = ({ data, selectedMonth }) => {
+  highlightedMonth?: string | null;
+}> = ({ data, 
+selectedMonth,
+highlightedMonth,
+
+}) => {
   const [cumulative, setCumulative] = useState<boolean>(true);
   const currentMonth: string = useMemo(() => {
     // highlight the last month we have data for
@@ -148,7 +153,7 @@ const DailyLineChart: React.FC<{
                 ? styles.lineOpacityActive
                 : currentMonth === monthName && selectedMonth === undefined
                 ? styles.lineOpacityActive
-                : styles.lineOpacityInactive
+                : (highlightedMonth === monthName ? 1 : styles.lineOpacityInactive)
             }
             stroke={
               selectedMonth === monthName
