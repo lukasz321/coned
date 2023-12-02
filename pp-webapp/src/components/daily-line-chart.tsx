@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import Toggle from "react-toggle";
 import {
   Label,
@@ -61,16 +61,18 @@ const DailyLineChart: React.FC<{
     return result;
   }, [data, cumulative]);
 
-  /*
+  return (
+  <Fragment>
       <div
         style={{
+          position: "absolute",
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-end",
-          gap: "6px",
+          gap: "3px",
+          zIndex: 2,
+          paddingLeft: "85px",
         }}
       >
-        {"cumulative usage: "}
         <Toggle
           defaultChecked={cumulative}
           icons={false}
@@ -78,9 +80,8 @@ const DailyLineChart: React.FC<{
             setCumulative(!cumulative);
           }}
         />
+        {"cumulative"}
       </div>
-      */
-  return (
     <ResponsiveContainer minHeight="300px">
       <LineChart
         data={data}
@@ -164,6 +165,7 @@ const DailyLineChart: React.FC<{
         ))}
       </LineChart>
     </ResponsiveContainer>
+    </Fragment>
   );
 };
 
