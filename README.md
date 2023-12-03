@@ -17,10 +17,9 @@
   <a href="#how-it-started">About The Project</a>
 </p>  
 
-<p align="center">
-  
-![screenshot](img/clip.gif)
-</p>                                                                                                                             
+<h2 align="center">
+  <span style="font-size: larger;">https://power.lzagaja.com</span>
+</h2>
 
 ## Supported Power Providers
 | Provider | Area                                              |
@@ -48,38 +47,23 @@ cd powerplot && install.sh
 ```
 
 ## How It Works
+PowerPlot comprises three main parts: the scraper, the API, and the webapp.
 
-PowerPlot consists of three components: 
-1. the scraper, 
-2. the API, 
-3. the webapp.
+**Scraper**: This component regularly fetches data from your power provider using the provided credentials, storing it in a local database. For instance, it accesses Con Edison's website every few hours to capture real-time power usage data at 15-minute intervals beyond the past 24 hours. The scraper operates as a Python3 module under the pp-scraper.service.
 
-**[1] The scraper periodically retrieves data from your power provider** using the provided credentials, and caches it in the local database. 
+**API**: The API, built with FastAPI and pandas, serves the collected data to the frontend. It operates as a systemd service named pp-api.service.
 
-For instance, Con Edison offers an insight into one's real-time power usage in 15-minute intervals, *but only for the past day*. The scraper logs into Con Ed's website every few hours, fetches the data, and stores it in a local database, enabling visualization of usage beyond 24 hours.
+**Webapp**: The frontend, React + TS, visualizes the collected data. It operates under the pp-webapp.service systemd service.
 
-The scraper is a python3 module which runs under a systemd service named `pp-scraper.service`.
+## Project Inspiration
+The project originated from a surprise electric bill in our newly-constructed Brooklyn apartment. Despite our absence for most of September, our 300sqft 2-bedroom apartment incurred a hefty $160 bill. This sparked questions about our appliances' usage: was it the oven, the rarely used air conditioning, or a connection issue with a neighboring apartment?
 
-
-**[2] As the name implies, the API serves the data collected by the scraper to the frontend.**
-
-The api powered by `FastAPI` and `pandas`. It runs as a systemd service called `pp-api.service`.
+Upon analyzing the scraped data, we discovered that our AC units were disproportionately powerful for our apartment's size. According to the data, running all three units 24/7 would have resulted in a staggering $600 bill.
 
 
-**[3] The webapp is of course the frontend for the collected data.**
-
-It's built with React and TypeScript and runs as a systemd service named `pp-webapp.service`.
-
-## How It Started
-Upon moving to a newly-constructed building in Brooklyn, it didn't take us long to be shocked by our electric bill.
-
-Even though we were gone for most of September, the bill for our 300sqft 2-bedroom apartment clocked in at about $160. Was is the oven? Air-condition that we barely ran? Was our grid hooked up to the neigboring apartment?
-
-The above questions were an inspiration for this project.
-
-
-# :construction: TODO + FIXME
-csv download
-settings bar
-health bar
-webapp wizard
+## TODO + FIXME
+- csv download
+- settings bar
+- health bar
+- webapp wizard
+- tooltip on daily line chart needs attn
