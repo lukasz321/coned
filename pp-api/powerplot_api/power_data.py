@@ -114,7 +114,7 @@ class PowerData:
         """ """
 
         df_monthly = self.monthly()
-        df_daily = self.daily()
+        df_daily = self.daily().dropna() # Drop days without data...
 
         # Extrapolate the usage based on the current day of the month.
         # TODO: this shouldnt include "today", as that skews the projection badly
