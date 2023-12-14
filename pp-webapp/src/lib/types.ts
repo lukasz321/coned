@@ -3,20 +3,28 @@ export type FIXME = any;
 
 export type Sentiment = "positive" | "negative" | "neutral";
 
-export type DailyBreakdown = {
+export interface DailyBreakdown {
   morning: number;
   evening: number;
   afternoon: number;
   night: number;
-};
+}
 
-export type PowerDataItem = {
+export interface PowerDataItem {
   date: Date;
   value: number;
   month: number;
   day: number;
   hour: number;
-};
+}
+
+// Data which gets passed to Brush summary.
+export interface BrushData {
+  average: number;
+  width: number;
+  firstIndexDate: Date;
+  lastIndexDate: Date;
+}
 
 export type PowerData = {
   lastUpdated: string;
@@ -44,6 +52,7 @@ export type PowerData = {
   };
 };
 
+// eslint-disable-next-line
 export namespace PowerData {
   export function deserialize(apiData: RawPowerData): PowerData {
     // Deserialize the data received from the API.

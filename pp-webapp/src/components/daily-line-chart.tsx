@@ -23,17 +23,13 @@ const DailyLineChart: React.FC<{
   data: PowerDataItem[];
   selectedMonth?: string | null;
   highlightedMonth?: string | null;
-}> = ({ data, 
-selectedMonth,
-highlightedMonth,
-
-}) => {
+}> = ({ data, selectedMonth, highlightedMonth }) => {
   const [cumulative, setCumulative] = useState<boolean>(true);
+
   const currentMonth: string = useMemo(() => {
-    // highlight the last month we have data for
+    // Highlight the last month we have the data for...
     return monthNames[data[data.length - 1].date.getMonth()];
-    //return (monthNames[new Date().getMonth()]);
-  }, []);
+  }, [data]);
 
   const sortedData = useMemo(() => {
     // sort the data by months:
@@ -67,7 +63,7 @@ highlightedMonth,
   }, [data, cumulative]);
 
   return (
-  <Fragment>
+    <Fragment>
       <div
         style={{
           position: "absolute",
@@ -87,90 +83,92 @@ highlightedMonth,
         />
         {"cumulative"}
       </div>
-    <ResponsiveContainer minHeight="300px">
-      <LineChart
-        data={data}
-        margin={{
-          top: 0,
-          right: 0,
-          left: 20,
-          bottom: 20,
-        }}
-      >
-        <CartesianGrid stroke="#888" strokeOpacity="0.3" />
-        <Tooltip
-          contentStyle={tooltipStyle}
-          labelStyle={{ color: "#FFFFFF", background: "transparent" }}
-          itemStyle={{
-            color: "rgba(255, 255, 255, 0.7",
-            background: "transparent",
+      <ResponsiveContainer minHeight="300px">
+        <LineChart
+          data={data}
+          margin={{
+            top: 0,
+            right: 0,
+            left: 20,
+            bottom: 20,
           }}
-          formatter={(value, name, props) => [`${value} kWh`, name]}
-          labelFormatter={(label: number) => {
-            return withOrdinalSuffix(label);
-          }}
-        />
-        <XAxis
-          tick={{ fill: styles.barColorInactive }}
-          dataKey="day"
-          domain={[1, 31]}
-          type="number"
-          tickCount={16}
-          allowDuplicatedCategory={false}
         >
-          <Label
-            value="Day of the Month"
-            position="bottom"
-            fill={styles.barColorInactive}
+          <CartesianGrid stroke="#888" strokeOpacity="0.3" />
+          <Tooltip
+            contentStyle={tooltipStyle}
+            labelStyle={{ color: "#FFFFFF", background: "transparent" }}
+            itemStyle={{
+              color: "rgba(255, 255, 255, 0.7",
+              background: "transparent",
+            }}
+            formatter={(value, name, props) => [`${value} kWh`, name]}
+            labelFormatter={(label: number) => {
+              return withOrdinalSuffix(label);
+            }}
           />
-        </XAxis>
-        <YAxis
-          allowDecimals={false}
-          tick={{ fill: styles.barColorInactive }}
-          dataKey="value"
-          orientation={"left"}
-          unit={" kW"}
-        >
-          <Label
-            value=""
-            position="inside"
-            angle={-90}
-            fill={styles.barColorInactive}
-          />
-        </YAxis>
-        {Object.entries(sortedData).map(([monthName, monthData]) => (
-          <Line
-            key={monthName}
-            type="monotone"
-            strokeWidth={
-              selectedMonth === monthName
-                ? styles.lineWidthActive
-                : currentMonth === monthName && selectedMonth === undefined
-                ? styles.lineWidthActive
-                : styles.lineWidthInactive
-            }
-            strokeOpacity={
-              selectedMonth === monthName
-                ? styles.lineOpacityActive
-                : currentMonth === monthName && selectedMonth === undefined
-                ? styles.lineOpacityActive
-                : (highlightedMonth === monthName ? 1 : styles.lineOpacityInactive/2)
-            }
-            stroke={
-              selectedMonth === monthName
-                ? styles.lineColorActive
-                : currentMonth === monthName && selectedMonth === undefined
-                ? styles.lineColorActive
-                : styles.lineColorInactive
-            }
-            dot={false}
+          <XAxis
+            tick={{ fill: styles.barColorInactive }}
+            dataKey="day"
+            domain={[1, 31]}
+            type="number"
+            tickCount={16}
+            allowDuplicatedCategory={false}
+          >
+            <Label
+              value="Day of the Month"
+              position="bottom"
+              fill={styles.barColorInactive}
+            />
+          </XAxis>
+          <YAxis
+            allowDecimals={false}
+            tick={{ fill: styles.barColorInactive }}
             dataKey="value"
-            name={monthName}
-            data={monthData}
-          />
-        ))}
-      </LineChart>
-    </ResponsiveContainer>
+            orientation={"left"}
+            unit={" kW"}
+          >
+            <Label
+              value=""
+              position="inside"
+              angle={-90}
+              fill={styles.barColorInactive}
+            />
+          </YAxis>
+          {Object.entries(sortedData).map(([monthName, monthData]) => (
+            <Line
+              key={monthName}
+              type="monotone"
+              strokeWidth={
+                selectedMonth === monthName
+                  ? styles.lineWidthActive
+                  : currentMonth === monthName && selectedMonth === undefined
+                  ? styles.lineWidthActive
+                  : styles.lineWidthInactive
+              }
+              strokeOpacity={
+                selectedMonth === monthName
+                  ? styles.lineOpacityActive
+                  : currentMonth === monthName && selectedMonth === undefined
+                  ? styles.lineOpacityActive
+                  : highlightedMonth === monthName
+                  ? 1
+                  : styles.lineOpacityInactive / 2
+              }
+              stroke={
+                selectedMonth === monthName
+                  ? styles.lineColorActive
+                  : currentMonth === monthName && selectedMonth === undefined
+                  ? styles.lineColorActive
+                  : styles.lineColorInactive
+              }
+              dot={false}
+              dataKey="value"
+              name={monthName}
+              data={monthData}
+            />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
     </Fragment>
   );
 };

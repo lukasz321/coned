@@ -46,7 +46,7 @@ const HourlyBarChart: React.FC<{
     if (dataShown) {
       dataShown(data.slice(data.length - 24 * SHOW_LAST_NUM_DAYS));
     }
-  }, [data]);
+  }, [data, dataShown]);
 
   return (
     <div style={{ paddingRight: "4em" }}>
@@ -90,7 +90,10 @@ const HourlyBarChart: React.FC<{
               if (evt.endIndex && evt.startIndex) {
                 const indexWidth = evt.endIndex - evt.startIndex;
 
-                if (indexWidth <= 6 * 24 && evt.startIndex > data.length - 24*6) {
+                if (
+                  indexWidth <= 6 * 24 &&
+                  evt.startIndex > data.length - 24 * 6
+                ) {
                   setBrushWidth("day");
                 } else if (indexWidth <= 28 * 24) {
                   setBrushWidth("week");

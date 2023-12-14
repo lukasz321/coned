@@ -1,17 +1,16 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import "./App.css";
-import styles from "styles";
 
 import { monthNames } from "lib/constants";
-import { displayDate, calculateMean, numHoursToTimeString } from "lib/utils";
-import { PowerData, PowerDataItem } from "lib/types";
+import { calculateMean } from "lib/utils";
+import { PowerData, PowerDataItem, BrushData } from "lib/types";
 
+import { fetchData } from "lib/api";
+import { Backdrop } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
-import {Backdrop} from '@mui/material';
-import {CircularProgress} from '@mui/material';
-
-import Placeholder from "components/placeholder";
+import BrushDataSentenceSummary from "components/brush-data-sentence-summary";
 
 import DailyLineChart from "components/daily-line-chart";
 import HourlyBarChart from "components/hourly-bar-chart";
@@ -30,99 +29,12 @@ import BillBreakdownPieChart from "components/bill-breakdown-pie-chart";
 
 // In hourly, show a straight line this month's average? or last's?
 
-interface BrushData {
-  average: number;
-  width: number;
-  firstIndexDate: Date;
-  lastIndexDate: Date;
-}
-
-async function fetchData() {
-  try {
-    let apiUrl = "http://0.0.0.0:8181/";
-
-    if (window.location.hostname.includes("power.lzagaja.com")) {
-      apiUrl =
-        "https://s3sync-public.s3.amazonaws.com/powerplot.json?v=" +
-        new Date().getTime(); // so that the browser doesn't cache anything
-    } else if (process.env.REACT_APP_SERVER_LOCAL_IP_ADDRESS) {
-      // when run locally, fetch from a server expected to run on the same machine
-      apiUrl = `http://${process.env.REACT_APP_SERVER_LOCAL_IP_ADDRESS}:8181/`;
-    }
-
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-      throw new Error("Network response was not ok.");
-    }
-
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      const data = await response.json();
-      return data;
-    } else if (contentType && contentType.includes("binary/octet-stream")) {
-      // fetching the data from s3
-      const jsonString = await response.text();
-      const data = JSON.parse(jsonString);
-      return data;
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error("There was a problem fetching the data!");
-    console.error(error);
-    return null;
-  }
-}
-
-const BrushDataSummary: React.FC<{ selectedBrushData: BrushData }> = ({
-  selectedBrushData,
-}) => {
-  return (
-    <div className="brush-info">
-      <span>
-        {`Between `}
-        <span style={{ fontWeight: 300 }}>
-          {displayDate(selectedBrushData.firstIndexDate)}
-        </span>
-        {`, and `}
-        <span style={{ fontWeight: 300 }}>
-          {displayDate(selectedBrushData.lastIndexDate)}
-        </span>
-        {` (approx. `}
-        {numHoursToTimeString(selectedBrushData.width)}
-        {` period), the mean energy consumption was `}
-      </span>
-      <span style={{ display: "flex", alignItems: "center" }}>
-        &nbsp; &nbsp;
-        <span
-          style={{
-            fontSize: "1.3em",
-            fontWeight: 280,
-            color:
-              selectedBrushData.average < 0.3
-                ? styles.colorGreen
-                : selectedBrushData.average < 0.7
-                ? styles.colorYellow
-                : styles.colorRed,
-          }}
-        >
-          {` ${selectedBrushData.average.toFixed(2)} kW `}
-        </span>
-        &nbsp; &nbsp;
-        <span style={{ verticalAlign: "middle" }}>{`per hour.`}</span>
-      </span>
-    </div>
-  );
-};
-
 const App: React.FC = () => {
   const [data, setData] = useState<PowerData | null>(null);
 
   // This is the month user sleects in MonthlyBarChart by clicking on a bar
   // undefined - signals to "set up the default", whatever that is, whereas null
   // indicates that user explicitly deselected all months (none are selected)
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   const [selectedMonth, setSelectedMonth] = useState<undefined | null | string>(
     undefined,
   );
@@ -138,8 +50,8 @@ const App: React.FC = () => {
     lastIndexDate: new Date(Date.now()),
   });
 
+  // Fetch data on page load...
   useEffect(() => {
-    // Fetch the data from s3 or local server on page load...
     fetchData()
       .then((data) => {
         if (data) {
@@ -148,10 +60,12 @@ const App: React.FC = () => {
         }
       })
       .catch((error) => {
-        console.error("Error during fetch!");
+        console.error("Error during fetch! See details below.");
         console.error(error);
       });
   }, []);
+
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {
     const handleResize = () => {
@@ -186,7 +100,7 @@ const App: React.FC = () => {
       </span>
 
       <div className="section">
-        <BrushDataSummary selectedBrushData={selectedBrushData} />
+        <BrushDataSentenceSummary selectedBrushData={selectedBrushData} />
 
         <HourlyBarChart
           data={data.data.hourly}
@@ -213,23 +127,26 @@ const App: React.FC = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              transform: "translateX(17%)",
             }}
           >
-            <label style={{ fontSize: "54px", whiteSpace: "nowrap" }}>
+            <span
+              style={{
+                fontSize: "54px",
+                whiteSpace: "nowrap",
+              }}
+            >
               {`Projected ${
                 monthNames[
                   data.data.monthly[data.data.monthly.length - 1].month
                 ]
               } bill is`}
-            </label>
+            </span>
           </div>
 
-          {/* there needs to be a better way of doing this...*/}
           <div
             style={{
-              marginLeft: "-260px",
-              marginRight: "-80px",
-              width: "700px",
+              transform: "translateX(-17%)",
             }}
           >
             <BillBreakdownPieChart
@@ -259,15 +176,14 @@ const App: React.FC = () => {
         </div>
       </div>
     </div>
- ) : 
+  ) : (
     <Backdrop
-      sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
       open={true}
     >
-    <CircularProgress color="inherit" />
+      <CircularProgress color="inherit" />
     </Backdrop>
-
-;
+  );
 };
 
 export default App;

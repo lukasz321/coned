@@ -15,16 +15,17 @@ import styles from "styles";
 
 import { tooltipStyle } from "lib/rechart-styles";
 import { PowerDataItem } from "lib/types";
-import { monthNames, abbrevMonthNames, superAbbrevMonthNames } from "lib/constants";
+import {
+  monthNames,
+  abbrevMonthNames,
+  superAbbrevMonthNames,
+} from "lib/constants";
 
 const MonthlyBarChart: React.FC<{
   data: PowerDataItem[];
   onSelectedMonthChanged?: (selectedMonth: string | null) => void;
   onHighlightedMonthChanged?: (highlightedMonth: string | null) => void;
-}> = ({ data, 
-onSelectedMonthChanged,
-onHighlightedMonthChanged,
-}) => {
+}> = ({ data, onSelectedMonthChanged, onHighlightedMonthChanged }) => {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(
     data.length - 1,
   );
@@ -122,8 +123,13 @@ onHighlightedMonthChanged,
           tick={{ fill: styles.barColorInactive }}
           dataKey="date"
           tickFormatter={(date) => {
-              // start abbreviating months once there's enough columns
-            const monthNameFunction = data.length > 4 ? superAbbrevMonthNames : (data.length > 2 ? abbrevMonthNames : abbrevMonthNames);
+            // start abbreviating months once there's enough columns
+            const monthNameFunction =
+              data.length > 4
+                ? superAbbrevMonthNames
+                : data.length > 2
+                ? abbrevMonthNames
+                : abbrevMonthNames;
             const monthName = monthNameFunction[new Date(date).getMonth()];
             return monthName;
           }}
@@ -138,8 +144,8 @@ onHighlightedMonthChanged,
           allowDecimals={false}
           tick={{ fill: styles.barColorInactive }}
           orientation={"right"}
-          domain={[0, Math.ceil(maxValue * 1.1/100)*100]}
-          tickCount={Math.ceil(maxValue * 1.1/100) + 1}
+          domain={[0, Math.ceil((maxValue * 1.1) / 100) * 100]}
+          tickCount={Math.ceil((maxValue * 1.1) / 100) + 1}
           tickFormatter={(value) => Math.floor(value).toString()}
           //unit={"kWh"}
         />
