@@ -1,16 +1,5 @@
 import React, { Fragment, useState, useEffect } from "react";
 
-/*
-import {
-  faBars,
-  faCheck,
-  faCircleChevronDown,
-  faCircleChevronUp,
-  faGear,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-*/
-
 import "./App.css";
 import styles from "styles";
 
@@ -18,9 +7,11 @@ import { monthNames } from "lib/constants";
 import { displayDate, calculateMean, numHoursToTimeString } from "lib/utils";
 import { PowerData, PowerDataItem } from "lib/types";
 
+
+import {Backdrop} from '@mui/material';
+import {CircularProgress} from '@mui/material';
+
 import Placeholder from "components/placeholder";
-//import InfoBox from "components/info-box";
-//import Insight from "components/insight";
 
 import DailyLineChart from "components/daily-line-chart";
 import HourlyBarChart from "components/hourly-bar-chart";
@@ -38,6 +29,13 @@ import BillBreakdownPieChart from "components/bill-breakdown-pie-chart";
 // and when "show progress/momentum" show the 3rd chart: Subaru gas chart
 
 // In hourly, show a straight line this month's average? or last's?
+
+interface BrushData {
+  average: number;
+  width: number;
+  firstIndexDate: Date;
+  lastIndexDate: Date;
+}
 
 async function fetchData() {
   try {
@@ -77,6 +75,47 @@ async function fetchData() {
   }
 }
 
+const BrushDataSummary: React.FC<{ selectedBrushData: BrushData }> = ({
+  selectedBrushData,
+}) => {
+  return (
+    <div className="brush-info">
+      <span>
+        {`Between `}
+        <span style={{ fontWeight: 300 }}>
+          {displayDate(selectedBrushData.firstIndexDate)}
+        </span>
+        {`, and `}
+        <span style={{ fontWeight: 300 }}>
+          {displayDate(selectedBrushData.lastIndexDate)}
+        </span>
+        {` (approx. `}
+        {numHoursToTimeString(selectedBrushData.width)}
+        {` period), the mean energy consumption was `}
+      </span>
+      <span style={{ display: "flex", alignItems: "center" }}>
+        &nbsp; &nbsp;
+        <span
+          style={{
+            fontSize: "1.3em",
+            fontWeight: 280,
+            color:
+              selectedBrushData.average < 0.3
+                ? styles.colorGreen
+                : selectedBrushData.average < 0.7
+                ? styles.colorYellow
+                : styles.colorRed,
+          }}
+        >
+          {` ${selectedBrushData.average.toFixed(2)} kW `}
+        </span>
+        &nbsp; &nbsp;
+        <span style={{ verticalAlign: "middle" }}>{`per hour.`}</span>
+      </span>
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [data, setData] = useState<PowerData | null>(null);
 
@@ -92,12 +131,7 @@ const App: React.FC = () => {
   const [highlightedMonth, setHighlightedMonth] = useState<null | string>(null);
 
   // This is the data user selects in HourlyBarChart via a slider
-  const [selectedBrushData, setSelectedBrushData] = useState<{
-    average: number;
-    width: number;
-    firstIndexDate: Date;
-    lastIndexDate: Date;
-  }>({
+  const [selectedBrushData, setSelectedBrushData] = useState<BrushData>({
     average: 0,
     width: 0,
     firstIndexDate: new Date(Date.now()),
@@ -145,184 +179,95 @@ const App: React.FC = () => {
     >
       Mobile is not supported, visit me on desktop!
     </div>
-  ) : (
+  ) : data ? (
     <div className="main">
-      {data && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            paddingBottom: "8px",
-            paddingRight: "20px",
-            fontSize: "0.85em",
-            color: "#FFF",
-          }}
-        >
-          {`Data last fetched on ${data.lastUpdated}`}
-        </div>
-      )}
-      {/*
-        <div
-          style={{
-            display: "inline-block",
-            padding: "10px 0 0 40px",
-          }}
-        >
-          {data && (
-            <Insight
-              text={`In the past 24 hours, the mean hourly usage has been ${
-                data.hourlyTrend.past24H
-              } kWh, which is ${data.hourlyTrend.pctDiff}% ${
-                data.hourlyTrend.pctDiff <= 0 ? "lower" : "higher"
-              } than the 7-day mean of ${data.hourlyTrend.past7D} kWh.`}
-              leadingIcon={
-                data.hourlyTrend.pctDiff <= 0
-                  ? faCircleChevronUp
-                  : faCircleChevronDown
-              }
-              sentiment={
-                data.hourlyTrend.pctDiff <= 0 ? "positive" : "negative"
-              }
-            />
-          )}
-        </div>
-      */}
-      <div className="section">
-        {data ? (
-          <Fragment>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <span>
-                {`Between `}
-                <span style={{ fontWeight: 300 }}>
-                  {displayDate(selectedBrushData.firstIndexDate)}
-                </span>
-                {`, and `}
-                <span style={{ fontWeight: 300 }}>
-                  {displayDate(selectedBrushData.lastIndexDate)}
-                </span>
-                {` (approx. `}
-                {numHoursToTimeString(selectedBrushData.width)}
-                {` period), the mean energy consumption was `}
-              </span>
-              <span style={{ display: "flex", alignItems: "center" }}>
-                &nbsp; &nbsp;
-                <span
-                  style={{
-                    fontSize: "1.3em",
-                    fontWeight: 280,
-                    color:
-                      selectedBrushData.average < 0.3
-                        ? styles.colorGreen
-                        : selectedBrushData.average < 0.7
-                        ? styles.colorYellow
-                        : styles.colorRed,
-                  }}
-                >
-                  {` ${selectedBrushData.average.toFixed(2)} kW `}
-                </span>
-                &nbsp; &nbsp;
-                <span style={{ verticalAlign: "middle" }}>{`per hour.`}</span>
-              </span>
-            </div>
+      <span className="last-updated">
+        {`Data last fetched on ${data.lastUpdated}`}
+      </span>
 
-            <HourlyBarChart
-              data={data.data.hourly}
-              dataShown={(data: PowerDataItem[]) => {
-                setSelectedBrushData({
-                  average: calculateMean(data.map((d) => d.value)),
-                  width: data.length,
-                  firstIndexDate: data[0].date,
-                  lastIndexDate: data[data.length - 1].date,
-                });
-              }}
-            />
-          </Fragment>
-        ) : (
-          <Placeholder />
-        )}
+      <div className="section">
+        <BrushDataSummary selectedBrushData={selectedBrushData} />
+
+        <HourlyBarChart
+          data={data.data.hourly}
+          dataShown={(data: PowerDataItem[]) => {
+            setSelectedBrushData({
+              average: calculateMean(data.map((d) => d.value)),
+              width: data.length,
+              firstIndexDate: data[0].date,
+              lastIndexDate: data[data.length - 1].date,
+            });
+          }}
+        />
       </div>
 
       <div className="section transparent">
-        {data ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
           <div
             style={{
               display: "flex",
               justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <label style={{ fontSize: "54px", whiteSpace: "nowrap" }}>
-                {`Projected ${
-                  monthNames[
-                    data.data.monthly[data.data.monthly.length - 1].month
-                  ]
-                } bill is`}
-              </label>
-            </div>
-
-            {/* there needs to be a better way of doing this...*/}
-            <div
-              style={{
-                marginLeft: "-260px",
-                marginRight: "-80px",
-                width: "700px",
-              }}
-            >
-              <BillBreakdownPieChart
-                projectedBillDollars={data.billing.projectedBillDollars}
-                billBreakdown={data.billing.billBreakdown}
-              />
-            </div>
+            <label style={{ fontSize: "54px", whiteSpace: "nowrap" }}>
+              {`Projected ${
+                monthNames[
+                  data.data.monthly[data.data.monthly.length - 1].month
+                ]
+              } bill is`}
+            </label>
           </div>
-        ) : (
-          <Placeholder />
-        )}
+
+          {/* there needs to be a better way of doing this...*/}
+          <div
+            style={{
+              marginLeft: "-260px",
+              marginRight: "-80px",
+              width: "700px",
+            }}
+          >
+            <BillBreakdownPieChart
+              projectedBillDollars={data.billing.projectedBillDollars}
+              billBreakdown={data.billing.billBreakdown}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="section">
-        {data ? (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "80% 20%",
-              padding: "15px",
-              gap: "15px",
-            }}
-          >
-            <DailyLineChart
-              data={data.data.daily}
-              selectedMonth={selectedMonth}
-              highlightedMonth={highlightedMonth}
-            />
-            <MonthlyBarChart // TODO: show monthly bars only if there are months to compare...
-              data={data.data.monthly}
-              onSelectedMonthChanged={(selectedMonth) =>
-                setSelectedMonth(selectedMonth)
-              }
-              onHighlightedMonthChanged={(highlightedMonth) =>
-                setHighlightedMonth(highlightedMonth)
-              }
-            />
-          </div>
-        ) : (
-          <Placeholder />
-        )}
+        <div className="month-panel">
+          <DailyLineChart
+            data={data.data.daily}
+            selectedMonth={selectedMonth}
+            highlightedMonth={highlightedMonth}
+          />
+          <MonthlyBarChart // TODO: show monthly lines only if there are months to compare...
+            data={data.data.monthly}
+            onSelectedMonthChanged={(selectedMonth) =>
+              setSelectedMonth(selectedMonth)
+            }
+            onHighlightedMonthChanged={(highlightedMonth) =>
+              setHighlightedMonth(highlightedMonth)
+            }
+          />
+        </div>
       </div>
     </div>
-  );
+ ) : 
+    <Backdrop
+      sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      open={true}
+    >
+    <CircularProgress color="inherit" />
+    </Backdrop>
+
+;
 };
 
 export default App;

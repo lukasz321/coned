@@ -1,7 +1,7 @@
 :root {
-  --large-font: 2.2em;
-  --medium-font: 1.5em;
-  --small-font: 1em;
+  --large-font: 2.2rem;
+  --medium-font: 1.5rem;
+  --small-font: 1rem;
 
   --color-electric-blue: #007bff;
   --color-eco-green: #00cc66;
@@ -14,6 +14,11 @@
   --primary-opacity: 0.9;
   --secondary-color: var(--color-light-gray);
   --secondary-opacity: 0.9;
+
+}
+
+* {
+    font-family: system-ui;
 }
 
 body {
@@ -53,7 +58,7 @@ body {
   height: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-itrems: center;
   opacity: 0.8;
 }
 
@@ -66,7 +71,7 @@ body {
   font-size: var(--small-font);
   font-weight: 100;
   color: rgba(255, 255, 255, 1);
-  padding: 1em;
+  padding: 1rem;
   border: none;
   opacity: 0.6;
 }
@@ -74,3 +79,27 @@ body {
 .status:hover {
   opacity: 0.8;
 }
+
+div.brush-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-bottom: 0.5rem;
+}
+
+span.last-updated {
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 8px;
+    padding-right: 20px;
+    font-size: 0.9rem;
+}
+
+div.month-panel {
+          display: grid;
+          grid-template-columns: 80% 20%;
+          padding: 15px;
+          gap: 15px;
+        }
+

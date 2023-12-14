@@ -116,6 +116,7 @@ highlightedMonth,
           domain={[1, 31]}
           type="number"
           tickCount={16}
+          allowDuplicatedCategory={false}
         >
           <Label
             value="Day of the Month"
