@@ -98,8 +98,9 @@ const DailyLineChart: React.FC<{
             contentStyle={tooltipStyle}
             labelStyle={{ color: "#FFFFFF", background: "transparent" }}
             itemStyle={{
-              color: "rgba(255, 255, 255, 0.7",
+              color: "rgba(255, 255, 255, 0.9",
               background: "transparent",
+              fontWeight: "350",
             }}
             formatter={(value, name, props) => [`${value} kWh`, name]}
             labelFormatter={(label: number) => {

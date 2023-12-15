@@ -1,0 +1,2 @@
+dev:
+	REACT_APP_SERVER_LOCAL_IP_ADDRESS="10.0.0.99" npm start

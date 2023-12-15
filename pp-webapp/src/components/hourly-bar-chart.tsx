@@ -129,8 +129,9 @@ const HourlyBarChart: React.FC<{
             }}
             formatter={(value, name, props) => [`${value} kWh`, null]}
             itemStyle={{
-              color: "rgba(255, 255, 255, 0.7",
+              color: "rgba(255, 255, 255, 0.9",
               background: "transparent",
+              fontWeight: 350,
             }}
             labelFormatter={(label) => {
               const date = new Date(label);

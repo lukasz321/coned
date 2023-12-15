@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from "react";
 
 import "./App.css";
+import styles from "styles";
+
+import {
+  Fade,
+  CircularProgress,
+  IconButton,
+  Backdrop,
+  Menu,
+  MenuItem,
+  Popover,
+} from "@mui/material";
+import {
+  List,
+  Code,
+  HelpOutline,
+  AlternateEmail,
+  ErrorOutline,
+  Done,
+} from "@mui/icons-material";
 
 import { monthNames } from "lib/constants";
 import { calculateMean } from "lib/utils";
 import { PowerData, PowerDataItem, BrushData } from "lib/types";
-
 import { fetchData } from "lib/api";
-import { Backdrop } from "@mui/material";
-import { CircularProgress } from "@mui/material";
 
 import BrushDataSentenceSummary from "components/brush-data-sentence-summary";
-
 import DailyLineChart from "components/daily-line-chart";
 import HourlyBarChart from "components/hourly-bar-chart";
 import MonthlyBarChart from "components/monthly-bar-chart";
@@ -29,8 +44,13 @@ import BillBreakdownPieChart from "components/bill-breakdown-pie-chart";
 
 // In hourly, show a straight line this month's average? or last's?
 
+const menuBarStyle = { color: "#fff", opacity: 0.8 };
+
 const App: React.FC = () => {
   const [data, setData] = useState<PowerData | null>(null);
+
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [infoAnchorEl, setInfoAnchorEl] = useState<null | HTMLElement>(null);
 
   // This is the month user sleects in MonthlyBarChart by clicking on a bar
   // undefined - signals to "set up the default", whatever that is, whereas null
@@ -38,6 +58,8 @@ const App: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState<undefined | null | string>(
     undefined,
   );
+
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
   // When use has the cursor above the MonthlyBarChart but no click (yet)
   const [highlightedMonth, setHighlightedMonth] = useState<null | string>(null);
@@ -95,9 +117,98 @@ const App: React.FC = () => {
     </div>
   ) : data ? (
     <div className="main">
-      <span className="last-updated">
-        {`Data last fetched on ${data.lastUpdated}`}
-      </span>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <IconButton
+            size="large"
+            onClick={(event) => setInfoAnchorEl(event.currentTarget)}
+          >
+            <HelpOutline style={menuBarStyle} />
+          </IconButton>
+          <Popover
+            open={infoAnchorEl !== null}
+            anchorEl={infoAnchorEl}
+            onClose={() => setInfoAnchorEl(null)}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+            PaperProps={{
+              style: {
+                background: "transparent",
+                backdropFilter: "blur(2px)",
+                borderRadius: "18px",
+                padding: "1em",
+              },
+            }}
+          >
+            <div
+              style={{
+                maxWidth: "400px",
+                color: "#fff",
+                fontWeight: "300",
+              }}
+            >
+              You're looking at actual electric power consumption of our
+              apartment in Brooklyn, NY. The data is scraped from our provider
+              (ConEd) and updated every 12 hours.
+            </div>
+          </Popover>
+
+          <IconButton size="large">
+            <Code style={menuBarStyle} />
+          </IconButton>
+          <IconButton size="large">
+            <AlternateEmail style={menuBarStyle} />
+          </IconButton>
+          <IconButton
+            aria-label="menu-button"
+            size="large"
+            onClick={(event) => setMenuAnchorEl(event.currentTarget)}
+          >
+            <List style={menuBarStyle} />
+          </IconButton>
+
+          <Menu
+            id="fade-menu"
+            anchorEl={menuAnchorEl}
+            MenuListProps={{
+              "aria-labelledby": "fade-button",
+            }}
+            open={menuAnchorEl !== null}
+            onClose={() => setMenuAnchorEl(null)}
+            TransitionComponent={Fade}
+          >
+            <MenuItem onClick={() => {}}>Profile</MenuItem>
+            <MenuItem onClick={() => {}}>My account</MenuItem>
+            <MenuItem onClick={() => {}}>Logout</MenuItem>
+          </Menu>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            color: "#fff",
+            fontWeight: 250,
+          }}
+        >
+          {`Data last fetched on ${data.lastUpdated}`}
+          <IconButton aria-label="delete" size="large">
+            <Done style={{ color: styles.colorGreen }} />
+            <ErrorOutline style={{ color: styles.colorRed }} />
+          </IconButton>
+        </div>
+      </div>
 
       <div className="section">
         <BrushDataSentenceSummary selectedBrushData={selectedBrushData} />
@@ -146,7 +257,10 @@ const App: React.FC = () => {
 
           <div
             style={{
-              transform: "translateX(-17%)",
+              transform: `translateX(-17%)`,
+              marginLeft: `${
+                data.billing.projectedBillDollars < 100 ? "0px" : "20px"
+              }`,
             }}
           >
             <BillBreakdownPieChart
