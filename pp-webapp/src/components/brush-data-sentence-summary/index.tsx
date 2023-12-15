@@ -29,13 +29,14 @@ const BrushDataSentenceSummary: React.FC<{ selectedBrushData: BrushData }> = ({
         {numHoursToTimeString(selectedBrushData.width)}
         {` period), the mean energy consumption was `}
       </span>
+
       <span style={{ display: "flex", alignItems: "center" }}>
         <span
           style={{
             paddingLeft: "0.3em",
-            paddingRight: "0.3em",
             fontSize: "1.3rem",
             fontWeight: 300,
+            alignItems: "center",
             color:
               selectedBrushData.average < 0.3
                 ? styles.colorGreen
@@ -45,8 +46,26 @@ const BrushDataSentenceSummary: React.FC<{ selectedBrushData: BrushData }> = ({
           }}
         >
           {` ${selectedBrushData.average.toFixed(2)} kW `}
+
         </span>
-        <span>{`per hour.`}</span>
+        <span>{`/hour or `}</span>
+        <span
+          style={{
+            paddingLeft: "0.3em",
+            fontSize: "1.3rem",
+            fontWeight: 300,
+            alignItems: "center",
+            color:
+              selectedBrushData.average < 0.3
+                ? styles.colorGreen
+                : selectedBrushData.average < 0.7
+                ? styles.colorYellow
+                : styles.colorRed,
+          }}
+        >
+          {`~$${(0.352*selectedBrushData.average*24*31 + 18).toFixed(0)}`}
+        </span>
+            <span>{`/month.`}</span>
       </span>
     </div>
   );

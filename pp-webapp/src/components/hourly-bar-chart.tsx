@@ -46,7 +46,7 @@ const HourlyBarChart: React.FC<{
     if (dataShown) {
       dataShown(data.slice(data.length - 24 * SHOW_LAST_NUM_DAYS));
     }
-  }, [data, dataShown]);
+  }, [data]);
 
   return (
     <div style={{ paddingRight: "4em" }}>

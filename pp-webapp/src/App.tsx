@@ -11,6 +11,7 @@ import {
   Menu,
   MenuItem,
   Popover,
+  Tooltip,
 } from "@mui/material";
 import {
   List,
@@ -125,52 +126,26 @@ const App: React.FC = () => {
         }}
       >
         <div>
-          <IconButton
-            size="large"
-            onClick={(event) => setInfoAnchorEl(event.currentTarget)}
-          >
-            <HelpOutline style={menuBarStyle} />
-          </IconButton>
-          <Popover
-            open={infoAnchorEl !== null}
-            anchorEl={infoAnchorEl}
-            onClose={() => setInfoAnchorEl(null)}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "center",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "center",
-            }}
-            PaperProps={{
-              style: {
-                background: "transparent",
-                backdropFilter: "blur(2px)",
-                borderRadius: "18px",
-                padding: "1em",
-              },
-            }}
-          >
-            <div
-              style={{
-                maxWidth: "400px",
-                color: "#fff",
-                fontWeight: "300",
-              }}
-            >
-              You're looking at actual electric power consumption of our
-              apartment in Brooklyn, NY. The data is scraped from our provider
-              (ConEd) and updated every 12 hours.
-            </div>
-          </Popover>
+          <Tooltip title="You're looking at actual electric power consumption of our Brooklyn apartment. The data is scraped from our provider (ConEd) and updated every 12 hours.">
+              <IconButton
+                size="large"
+                onClick={(event) => setInfoAnchorEl(event.currentTarget)}
+              >
+                <HelpOutline style={menuBarStyle} />
+              </IconButton>
+          </Tooltip>
 
+          <Tooltip title="GitHub. This project is open source!">
           <IconButton size="large">
             <Code style={menuBarStyle} />
           </IconButton>
+          </Tooltip>
+          
+          <Tooltip title="Say hello!">
           <IconButton size="large">
             <AlternateEmail style={menuBarStyle} />
           </IconButton>
+          </Tooltip>
           <IconButton
             aria-label="menu-button"
             size="large"
@@ -189,9 +164,9 @@ const App: React.FC = () => {
             onClose={() => setMenuAnchorEl(null)}
             TransitionComponent={Fade}
           >
-            <MenuItem onClick={() => {}}>Profile</MenuItem>
-            <MenuItem onClick={() => {}}>My account</MenuItem>
-            <MenuItem onClick={() => {}}>Logout</MenuItem>
+            <MenuItem onClick={() => {}}>This</MenuItem>
+            <MenuItem onClick={() => {}}>will be</MenuItem>
+            <MenuItem onClick={() => {}}>a menu.</MenuItem>
           </Menu>
         </div>
         <div
@@ -205,7 +180,7 @@ const App: React.FC = () => {
           {`Data last fetched on ${data.lastUpdated}`}
           <IconButton aria-label="delete" size="large">
             <Done style={{ color: styles.colorGreen }} />
-            <ErrorOutline style={{ color: styles.colorRed }} />
+            {/*<ErrorOutline style={{ color: styles.colorRed }} />*/}
           </IconButton>
         </div>
       </div>
