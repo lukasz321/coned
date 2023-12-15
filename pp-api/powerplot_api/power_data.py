@@ -2,7 +2,7 @@ import pathlib
 import pandas as pd
 import numpy as np
 import pytz
-
+import argparse
 
 class PowerData:
     """
@@ -114,19 +114,20 @@ class PowerData:
         """ """
 
         df_monthly = self.monthly()
-        df_daily = self.daily().dropna() # Drop days without data...
+        df_daily = self.daily()
+        df_daily = df_daily[df_daily['value'] >= 2] # Drop days with missing data or clearly incomplete days...
 
         # Extrapolate the usage based on the current day of the month.
-        # TODO: this shouldnt include "today", as that skews the projection badly
-        #       in early months due to the current day often being 'partial'
         last_data_day = self.df.index[-1].day
-        NUM_TRAILING_DAYS = 14
-        # Until there's at least X full days of data in this, use an X-day rolling average to estimate
+        NUM_TRAILING_DAYS = 21
+        # Until there's at least X full days of data in this month, use an X-day rolling average to estimate
         if last_data_day < NUM_TRAILING_DAYS:
             # Note that the latest day is excluded as the data is likely to be partial
             average_daily_usage_kwh = df_daily.tail(NUM_TRAILING_DAYS + 1).head(NUM_TRAILING_DAYS)['value'].mean()
             extrapolated_usage_kwh = average_daily_usage_kwh * 31
         else:
+            # TODO: If there are missing days in the current month, this prediction
+            #       will not be accurate. So make sure this is handled...
             extrapolated_usage_kwh = df_monthly.iloc[-1].value / last_data_day * 31
 
         # These charges are supplier dependent most likely. 
@@ -165,3 +166,21 @@ class PowerData:
                     "sales_tax": round(sales_tax, 2),
                 },
             }
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description=""
+    )
+
+    parser.add_argument(
+        "csv_data_filepath",
+        type=pathlib.Path,
+        help="Run algorithm on a capture. Viewer enabled by default.",
+    )
+
+
+    args = parser.parse_args()
+
+    p = PowerData(args.csv_data_filepath)
+    print(p.bill_breakdown())
