@@ -12,15 +12,7 @@ import {
   DialogTitle,
   Fade,
 } from "@mui/material";
-import {
-  List,
-  AttachMoney,
-  Code,
-  HelpOutline,
-  AlternateEmail,
-  ErrorOutline,
-  Done,
-} from "@mui/icons-material";
+import { AttachMoney } from "@mui/icons-material";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -31,7 +23,7 @@ const Transition = forwardRef(function Transition(
   return <Fade ref={ref} {...props} />;
 });
 
-export default function PaypalDialog() {
+const PaypalDialog: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const handleClose = () => {
@@ -57,25 +49,31 @@ export default function PaypalDialog() {
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
         PaperProps={{
-        style: {
-          backgroundColor: 'rgba(0, 0, 0, 0.35)',
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          borderRadius: "8px",
-          color: "#fff"
-        },
-      }}
+          style: {
+            backgroundColor: "rgba(0, 0, 0, 0.35)",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            borderRadius: "8px",
+            color: "#fff",
+          },
+        }}
       >
-
         <DialogTitle>{"Juuuust Kidding..."}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description" style={{ color: "#fff"}}>
+          <DialogContentText
+            id="alert-dialog-slide-description"
+            style={{ color: "#fff" }}
+          >
             You're a good soul for wanting to share your riches, though!
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} style={{ color: "#fff"}}>I Agree</Button>
+          <Button onClick={handleClose} style={{ color: "#fff" }}>
+            I Agree
+          </Button>
         </DialogActions>
       </Dialog>
     </Fragment>
   );
-}
+};
+
+export default PaypalDialog;

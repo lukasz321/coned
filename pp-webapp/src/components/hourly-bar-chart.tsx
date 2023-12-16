@@ -46,7 +46,7 @@ const HourlyBarChart: React.FC<{
     if (dataShown) {
       dataShown(data.slice(data.length - 24 * SHOW_LAST_NUM_DAYS));
     }
-  }, [data]);
+  }, [data, dataShown]);
 
   return (
     <div style={{ paddingRight: "4em" }}>
@@ -113,7 +113,7 @@ const HourlyBarChart: React.FC<{
                 );
               }
             }}
-            height={20}
+            height={25}
             tickFormatter={(idx) => {
               return data[idx].date.toDateString();
             }}

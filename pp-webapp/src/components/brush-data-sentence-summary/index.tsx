@@ -3,6 +3,9 @@ import styles from "styles";
 import { displayDate, numHoursToTimeString } from "lib/utils";
 import { BrushData } from "lib/types";
 
+const HOURLY_AVG_RED_ZONE = 0.5;
+const HOURLY_AVG_YELLOW_ZONE = 0.3;
+
 const BrushDataSentenceSummary: React.FC<{ selectedBrushData: BrushData }> = ({
   selectedBrushData,
 }) => {
@@ -38,9 +41,9 @@ const BrushDataSentenceSummary: React.FC<{ selectedBrushData: BrushData }> = ({
             fontWeight: 300,
             alignItems: "center",
             color:
-              selectedBrushData.average < 0.3
+              selectedBrushData.average < HOURLY_AVG_YELLOW_ZONE
                 ? styles.colorGreen
-                : selectedBrushData.average < 0.5
+                : selectedBrushData.average < HOURLY_AVG_RED_ZONE
                 ? styles.colorYellow
                 : styles.colorRed,
           }}
@@ -55,13 +58,14 @@ const BrushDataSentenceSummary: React.FC<{ selectedBrushData: BrushData }> = ({
             fontWeight: 300,
             alignItems: "center",
             color:
-              selectedBrushData.average < 0.3
+              selectedBrushData.average < HOURLY_AVG_YELLOW_ZONE
                 ? styles.colorGreen
-                : selectedBrushData.average < 0.7
+                : selectedBrushData.average < HOURLY_AVG_RED_ZONE
                 ? styles.colorYellow
                 : styles.colorRed,
           }}
         >
+          {/* rough back of the envelope calculation here, make it a variable though*/}
           {`~$${(0.352 * selectedBrushData.average * 24 * 31 + 18).toFixed(0)}`}
         </span>
         <span>{`/month.`}</span>
