@@ -40,13 +40,12 @@ const BrushDataSentenceSummary: React.FC<{ selectedBrushData: BrushData }> = ({
             color:
               selectedBrushData.average < 0.3
                 ? styles.colorGreen
-                : selectedBrushData.average < 0.7
+                : selectedBrushData.average < 0.5
                 ? styles.colorYellow
                 : styles.colorRed,
           }}
         >
           {` ${selectedBrushData.average.toFixed(2)} kW `}
-
         </span>
         <span>{`/hour or `}</span>
         <span
@@ -63,9 +62,9 @@ const BrushDataSentenceSummary: React.FC<{ selectedBrushData: BrushData }> = ({
                 : styles.colorRed,
           }}
         >
-          {`~$${(0.352*selectedBrushData.average*24*31 + 18).toFixed(0)}`}
+          {`~$${(0.352 * selectedBrushData.average * 24 * 31 + 18).toFixed(0)}`}
         </span>
-            <span>{`/month.`}</span>
+        <span>{`/month.`}</span>
       </span>
     </div>
   );

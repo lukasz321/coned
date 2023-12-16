@@ -10,11 +10,11 @@ import {
   Backdrop,
   Menu,
   MenuItem,
-  Popover,
   Tooltip,
 } from "@mui/material";
 import {
   List,
+  AttachMoney,
   Code,
   HelpOutline,
   AlternateEmail,
@@ -27,6 +27,7 @@ import { calculateMean } from "lib/utils";
 import { PowerData, PowerDataItem, BrushData } from "lib/types";
 import { fetchData } from "lib/api";
 
+import PaypalDialog from "components/paypal-dialog";
 import BrushDataSentenceSummary from "components/brush-data-sentence-summary";
 import DailyLineChart from "components/daily-line-chart";
 import HourlyBarChart from "components/hourly-bar-chart";
@@ -51,7 +52,6 @@ const App: React.FC = () => {
   const [data, setData] = useState<PowerData | null>(null);
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [infoAnchorEl, setInfoAnchorEl] = useState<null | HTMLElement>(null);
 
   // This is the month user sleects in MonthlyBarChart by clicking on a bar
   // undefined - signals to "set up the default", whatever that is, whereas null
@@ -59,8 +59,6 @@ const App: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState<undefined | null | string>(
     undefined,
   );
-
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
   // When use has the cursor above the MonthlyBarChart but no click (yet)
   const [highlightedMonth, setHighlightedMonth] = useState<null | string>(null);
@@ -127,25 +125,29 @@ const App: React.FC = () => {
       >
         <div>
           <Tooltip title="You're looking at actual electric power consumption of our Brooklyn apartment. The data is scraped from our provider (ConEd) and updated every 12 hours.">
-              <IconButton
-                size="large"
-                onClick={(event) => setInfoAnchorEl(event.currentTarget)}
-              >
-                <HelpOutline style={menuBarStyle} />
-              </IconButton>
+            <IconButton size="large" onClick={(event) => {}}>
+              <HelpOutline style={menuBarStyle} />
+            </IconButton>
           </Tooltip>
 
-          <Tooltip title="GitHub. This project is open source!">
-          <IconButton size="large">
-            <Code style={menuBarStyle} />
-          </IconButton>
+          <Tooltip title="This project is open source!">
+            <a
+              href="https://github.com/lukasz321/powerplot"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <IconButton size="large">
+                <Code style={menuBarStyle} />
+              </IconButton>
+            </a>
           </Tooltip>
-          
+
           <Tooltip title="Say hello!">
-          <IconButton size="large">
-            <AlternateEmail style={menuBarStyle} />
-          </IconButton>
+            <IconButton size="large">
+              <AlternateEmail style={menuBarStyle} />
+            </IconButton>
           </Tooltip>
+          <PaypalDialog />
           <IconButton
             aria-label="menu-button"
             size="large"
