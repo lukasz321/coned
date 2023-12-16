@@ -56,15 +56,24 @@ export default function PaypalDialog() {
         keepMounted
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
+        PaperProps={{
+        style: {
+          backgroundColor: 'rgba(0, 0, 0, 0.35)',
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          borderRadius: "8px",
+          color: "#fff"
+        },
+      }}
       >
+
         <DialogTitle>{"Juuuust Kidding..."}</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
+          <DialogContentText id="alert-dialog-slide-description" style={{ color: "#fff"}}>
             You're a good soul for wanting to share your riches, though!
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>I Agree</Button>
+          <Button onClick={handleClose} style={{ color: "#fff"}}>I Agree</Button>
         </DialogActions>
       </Dialog>
     </Fragment>
