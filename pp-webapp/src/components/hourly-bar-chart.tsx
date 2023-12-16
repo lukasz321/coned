@@ -49,7 +49,7 @@ const HourlyBarChart: React.FC<{
   }, [data, dataShown]);
 
   return (
-    <div style={{ paddingRight: "4em" }}>
+    <div style={{ paddingRight: "3em" }}>
       <ResponsiveContainer minHeight="300px">
         <BarChart data={data}>
           <Bar
@@ -177,7 +177,7 @@ const HourlyBarChart: React.FC<{
             }}
           />
           <YAxis
-            ticks={[1, 2, 3]} // TODO autocalculate this
+            tickCount={Math.min(8, Math.ceil(maxValue) + 1)}
             domain={[0, Math.ceil(maxValue)]}
             unit={" kW"}
             allowDecimals={false}
