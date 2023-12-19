@@ -28,6 +28,14 @@ import BillBreakdownPieChart from "components/bill-breakdown-pie-chart";
 
 // In hourly, show a straight line this month's average? or last's?
 
+const Section: React.FC = (props) => {
+    return (
+    <div>
+    </div>
+
+    );
+};
+
 const App: React.FC = () => {
   const [data, setData] = useState<PowerData | null>(null);
 

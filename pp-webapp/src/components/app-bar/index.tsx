@@ -40,6 +40,7 @@ const AppBar: React.FC<{
           </IconButton>
         </Tooltip>
 
+        {/*
         <Tooltip title="This project is open sourced!">
           <a
             href="https://github.com/lukasz321/powerplot"
@@ -51,7 +52,7 @@ const AppBar: React.FC<{
             </IconButton>
           </a>
         </Tooltip>
-
+        */}
         <Tooltip title="Say hello!">
           <IconButton size="large">
             <AlternateEmail style={menuBarStyle} />
@@ -66,6 +67,7 @@ const AppBar: React.FC<{
           <List style={menuBarStyle} />
         </IconButton>
 
+        {/*
         <Menu
           id="fade-menu"
           anchorEl={menuAnchorEl}
@@ -80,6 +82,7 @@ const AppBar: React.FC<{
           <MenuItem onClick={() => {}}>will be</MenuItem>
           <MenuItem onClick={() => {}}>a menu.</MenuItem>
         </Menu>
+        */}
       </div>
       <div
         style={{

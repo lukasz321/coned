@@ -2,7 +2,7 @@ import { Label, Cell, ResponsiveContainer, PieChart, Pie } from "recharts";
 
 import { titleCase } from "lib/utils";
 
-import "../App.css";
+import "App.css";
 import styles from "styles";
 
 const BillBreakdownPieChart: React.FC<{

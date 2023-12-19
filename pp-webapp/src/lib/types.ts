@@ -26,7 +26,7 @@ export interface BrushData {
   lastIndexDate: Date;
 }
 
-export type PowerData = {
+export interface PowerData {
   lastUpdated: string;
   lastUpdatedSecondsAgo: number;
   systemdHealth: Record<string, boolean>;
