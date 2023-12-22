@@ -61,7 +61,8 @@ const App: React.FC = () => {
   // for the sentence summary component to update...
   const handleOnBrushChange = useCallback((data: PowerDataItem[]) => {
     setSelectedBrushData({
-      average: calculateMean(data.map((d) => d.value)),
+      // Remove empty values from brush average (due to outages, etc)
+      average: calculateMean(data.map((d) => d.value).filter((v) => v > 0)), 
       width: data.length,
       firstIndexDate: data[0].date,
       lastIndexDate: data[data.length - 1].date,
