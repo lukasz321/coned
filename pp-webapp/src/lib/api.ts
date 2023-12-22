@@ -33,7 +33,7 @@ export async function fetchData() {
   try {
     let apiUrl = "http://0.0.0.0:8181/";
 
-    if (window.location.hostname.includes("power.lzagaja.com")) {
+    if (window.location.hostname.includes("powerplot")) {
       apiUrl =
         "https://s3sync-public.s3.amazonaws.com/powerplot.json?v=" +
         new Date().getTime(); // so that the browser doesn't cache anything
@@ -60,6 +60,49 @@ export async function fetchData() {
     } else {
       return null;
     }
+  } catch (error) {
+    console.error("There was a problem fetching the data!");
+    console.error(error);
+    return null;
+  }
+}
+
+export async function fetchWeatherData() {
+  try {
+    const timezone = 'America/New_York'; // Set your timezone
+    const latitude = 40.7128; // Set latitude
+    const longitude = -74.0060; // Set longitude
+
+    const base_url = 'https://api.open-meteo.com/v1/forecast';
+    const params = new URLSearchParams({
+      latitude: String(latitude),
+      longitude: String(longitude),
+      hourly: 'temperature_2m',
+      timeformat: 'unixtime',
+      timezone,
+      start_date: '2023-10-13',
+      end_date: '2023-12-01',
+      format: 'json',
+      temperature_unit: 'fahrenheit',
+    });
+
+    const apiUrl = `${base_url}?${params.toString()}`;
+
+    fetch(apiUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Process the fetched data here
+        console.log(data);
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the fetch
+        console.error('Fetch error:', error);
+      });
   } catch (error) {
     console.error("There was a problem fetching the data!");
     console.error(error);

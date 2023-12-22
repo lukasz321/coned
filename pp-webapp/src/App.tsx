@@ -7,7 +7,7 @@ import { CircularProgress, Backdrop } from "@mui/material";
 import { monthNames } from "lib/constants";
 import { calculateMean } from "lib/utils";
 import { PowerData, PowerDataItem, BrushData } from "lib/types";
-import { fetchData } from "lib/api";
+import { fetchData, fetchWeatherData } from "lib/api";
 
 import AppBar from "components/app-bar";
 import BrushDataSentenceSummary from "components/brush-data-sentence-summary";
@@ -84,6 +84,19 @@ const App: React.FC = () => {
       });
   }, []);
 
+  /*
+  useEffect(() => {
+    fetchWeatherData()
+      .then((data) => {
+        if (data) {
+        }
+      })
+      .catch((error) => {
+        console.error("Error during weather data fetch! See details below.");
+        console.error(error);
+      });
+  }, []);
+  */
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {

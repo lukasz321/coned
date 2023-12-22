@@ -46,7 +46,7 @@ export function withOrdinalSuffix(day: number): string {
 }
 
 export function calculateMean(arrayOfNumbers: number[]): number {
-  // Calculate mean of an array of numbers...
+  // Calculate mean of an array of numbers..
   const total = arrayOfNumbers.reduce((acc, c) => acc + c, 0);
   return total / arrayOfNumbers.length;
 }

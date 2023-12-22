@@ -2,7 +2,7 @@
   "name": "powerplot",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://power.lzagaja.com",
+  "homepage": "https://powerplot.app",
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -29,7 +29,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "add-domain": "echo \"power.lzagaja.com\" > build/CNAME",
+    "add-domain": "echo \"powerplot.app\" > build/CNAME",
     "predeploy": "npm run build",
     "deploy": "npm run add-domain && gh-pages -d build",
     "start": "PORT=5000 react-scripts start",
