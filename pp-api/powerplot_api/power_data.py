@@ -4,6 +4,7 @@ import numpy as np
 import pytz
 import argparse
 
+
 class PowerData:
     """
     Class facilitating manipulation of Power Usage Data through
@@ -115,22 +116,32 @@ class PowerData:
 
         df_monthly = self.monthly()
         df_daily = self.daily()
-        df_daily = df_daily[df_daily['value'] >= 2] # Drop days with missing data or clearly incomplete days...
+        df_daily = df_daily[
+            df_daily["value"] >= 2
+        ]  # Drop days with missing data or otherwise clearly incomplete days...
 
         # Extrapolate the usage based on the current day of the month.
         last_data_day = self.df.index[-1].day
-        NUM_TRAILING_DAYS = 21
-        # Until there's at least X full days of data in this month, use an X-day rolling average to estimate
-        if last_data_day < NUM_TRAILING_DAYS:
-            # Note that the latest day is excluded as the data is likely to be partial
-            average_daily_usage_kwh = df_daily.tail(NUM_TRAILING_DAYS + 1).head(NUM_TRAILING_DAYS)['value'].mean()
-            extrapolated_usage_kwh = average_daily_usage_kwh * 31
-        else:
-            # TODO: If there are missing days in the current month, this prediction
-            #       will not be accurate. So make sure this is handled...
-            extrapolated_usage_kwh = df_monthly.iloc[-1].value / last_data_day * 31
+        NUM_TRAILING_DAYS = 31
 
-        # These charges are supplier dependent most likely. 
+        # Note that the latest day is always excluded as the data is likely to be partial.
+        average_daily_usage_kwh = (
+            df_daily.tail(NUM_TRAILING_DAYS + 1).head(NUM_TRAILING_DAYS)["value"].mean()
+        )
+
+        # Let's weigh usage over the last 7 days a little more, so that the bill prediction is
+        # a little more dynamic based on the recent trends. This weighing should diminish as
+        # the month goes on, however.
+        recent_average_daily_usage_kwh = df_daily.tail(7 + 1).head(7)["value"].mean()
+
+        weighed_daily_usage_kwh = (
+            recent_average_daily_usage_kwh * (31 - last_data_day) / 31
+            + average_daily_usage_kwh * last_data_day / 31
+        )
+
+        extrapolated_usage_kwh = weighed_daily_usage_kwh * 31
+
+        # These charges are supplier dependent most likely.
         # Introduce the notion of supplier to the API once new integrations are added.
         if "coned" == "coned":
             basic_service_charge = 18.08
@@ -169,16 +180,13 @@ class PowerData:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description=""
-    )
+    parser = argparse.ArgumentParser(description="")
 
     parser.add_argument(
         "csv_data_filepath",
         type=pathlib.Path,
         help="Run algorithm on a capture. Viewer enabled by default.",
     )
-
 
     args = parser.parse_args()
 
