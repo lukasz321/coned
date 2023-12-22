@@ -7,6 +7,7 @@ const theme = {
   colorRed: "var(--color-critical-red)",
   colorGreen: "var(--color-eco-green)",
   colorGray: "var(--color-light-gray)",
+  colorBlue: "var(--color-electric-blue)",
   colorDarkGray: "var(--color-dark-gray)",
 
   barColorActive: "var(--primary-color)",

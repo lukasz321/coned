@@ -21,6 +21,10 @@ def get_geo_location():
 
 
 def get_hourly_weather_data(latitude: float, longitude: float, timezone: str):
+    print(timezone)
+    print(latitude)
+    print(longitude)
+
     base_url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": latitude,
@@ -28,9 +32,10 @@ def get_hourly_weather_data(latitude: float, longitude: float, timezone: str):
         "hourly": "temperature_2m",
         "timeformat": "unixtime",
         "timezone": timezone,
-        "start_date": "2023-10-26",
-        "end_date": "2023-11-01",
+        "start_date": "2023-10-13",
+        "end_date": "2023-12-22",
         "format": "json",
+        "temperature_unit": "fahrenheit",
     }
 
     response = requests.get(base_url, params=params)
@@ -40,10 +45,12 @@ def get_hourly_weather_data(latitude: float, longitude: float, timezone: str):
         print(f"Request failed with status code {response.status_code}")
     else:
         data = response.json()
+        print(data)
 
     local_timezone = pytz.timezone(timezone)
     timestamps = data["hourly"]["time"]
 
+    formatted = []
     for timestamp in timestamps:
         # Convert the Unix timestamp to a datetime object
         utc_datetime = datetime.datetime.utcfromtimestamp(timestamp).replace(
@@ -55,8 +62,9 @@ def get_hourly_weather_data(latitude: float, longitude: float, timezone: str):
 
         # Format the local datetime as a string
         formatted_datetime = local_datetime.strftime("%Y-%m-%d %H:%M:%S%z")
+        formatted.append(formatted_datetime)
 
-        print(formatted_datetime)
+    print(dict(zip(formatted_datetime, data["hourly"]["temperature_2m"])))
 
 
 # print(list(zip(data["hourly"]["time"], data["hourly"]["temperature_2m"])))

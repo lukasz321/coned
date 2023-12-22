@@ -6,7 +6,7 @@ import { CircularProgress, Backdrop } from "@mui/material";
 
 import { monthNames } from "lib/constants";
 import { calculateMean } from "lib/utils";
-import { PowerData, PowerDataItem, BrushData } from "lib/types";
+import { WeatherData, PowerData, PowerDataItem, BrushData } from "lib/types";
 import { fetchData, fetchWeatherData } from "lib/api";
 
 import AppBar from "components/app-bar";
@@ -38,6 +38,8 @@ const Section: React.FC = (props) => {
 
 const App: React.FC = () => {
   const [data, setData] = useState<PowerData | null>(null);
+  
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
 
   // This is the month user sleects in MonthlyBarChart by clicking on a bar
   // undefined - signals to "set up the default", whatever that is, whereas null
@@ -84,11 +86,12 @@ const App: React.FC = () => {
       });
   }, []);
 
-  /*
   useEffect(() => {
     fetchWeatherData()
       .then((data) => {
         if (data) {
+          const weatherData: WeatherData = WeatherData.deserialize(data);
+          setWeatherData(weatherData);
         }
       })
       .catch((error) => {
@@ -96,7 +99,7 @@ const App: React.FC = () => {
         console.error(error);
       });
   }, []);
-  */
+  
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {
@@ -135,6 +138,7 @@ const App: React.FC = () => {
         <HourlyBarChart
           data={data.data.hourly}
           dataShown={handleOnBrushChange}
+          weatherData={weatherData?.data ? weatherData.data : []}
         />
       </div>
 

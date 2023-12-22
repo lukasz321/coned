@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useState } from "react";
 
 import {
   Bar,
+  Line,
   Label,
   Cell,
   BarChart,
@@ -11,21 +12,23 @@ import {
   Tooltip,
   Brush,
   ResponsiveContainer,
+  ComposedChart,
 } from "recharts";
 
 import "App.css";
 import styles from "styles";
 
-import { PowerDataItem } from "lib/types";
+import { WeatherDataItem, PowerDataItem } from "lib/types";
 import { monthNames, abbrevMonthNames } from "lib/constants";
 import { toWeekdayName, withOrdinalSuffix } from "lib/utils";
 import { tooltipStyle } from "lib/rechart-styles";
 
 const HourlyBarChart: React.FC<{
   data: PowerDataItem[];
+  weatherData: WeatherDataItem[];
   title?: string;
   dataShown?: (shownData: PowerDataItem[]) => void;
-}> = ({ data, title, dataShown }) => {
+}> = ({ data, weatherData, title, dataShown }) => {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [highlightedIdx, setHighlightedIdx] = useState<number | null>(null);
   const [brushWidth, setBrushWidth] = useState<
@@ -42,17 +45,79 @@ const HourlyBarChart: React.FC<{
     [data],
   );
 
+  const maxWeatherValue = useMemo(() => {
+    if (weatherData.length > 0) {
+      return weatherData.reduce(
+        (max, current) => (current.value > max ? current.value : max),
+        weatherData[0].value,
+      );
+    }
+
+    return 0;
+  }, [weatherData]);
+
   useEffect(() => {
     if (dataShown) {
       dataShown(data.slice(data.length - 24 * SHOW_LAST_NUM_DAYS));
     }
   }, [data, dataShown]);
 
+  const combinedData = useMemo(() => {
+    if (weatherData) {
+      return data.map((powerItem) => {
+        const weatherItem = weatherData.find(
+          (weather) => weather.date.getTime() === powerItem.date.getTime(),
+        );
+
+        return {
+          date: powerItem.date,
+          value: powerItem.value,
+          weatherValue: weatherItem ? weatherItem.value : null,
+        };
+      });
+    } else {
+      return data;
+    }
+  }, [data, weatherData]);
+
   return (
     <div style={{ paddingRight: "3em" }}>
       <ResponsiveContainer minHeight="300px">
-        <BarChart data={data}>
+        <ComposedChart data={combinedData}>
+          {weatherData ? (
+            <>
+              <XAxis xAxisId={2} hide={true} dataKey="date" />
+              <YAxis
+                yAxisId={"right"}
+                domain={[0, Math.ceil(maxWeatherValue / 10) * 10]}
+                tickCount={Math.min(8, Math.ceil(maxWeatherValue / 10))}
+                unit={" F"}
+                allowDecimals={false}
+                tick={{ fill: styles.barColorInactive }}
+                orientation={"right"}
+              >
+                <Label
+                  value="" // FIXME
+                  angle={-90}
+                  position="insideEnd"
+                  offset={30}
+                  fill={styles.barColorInactive}
+                />
+              </YAxis>
+              <Line
+                xAxisId={2}
+                yAxisId={"right"}
+                dataKey="weatherValue"
+                dot={false}
+                stroke={styles.colorBlue}
+                strokeWidth={8}
+                opacity={0.3}
+              />
+            </>
+          ) : null}
           <Bar
+            xAxisId={1}
+            yAxisId={"left"}
             dataKey="value"
             onClick={(evt, idx) => {
               //setSelectedIdx(selectedIdx === idx ? null : idx);
@@ -127,7 +192,13 @@ const HourlyBarChart: React.FC<{
               strokeOpacity: 0.1,
               fill: "rgba(255, 255, 255, 0.2)",
             }}
-            formatter={(value, name, props) => [`${value} kWh`, null]}
+            formatter={(value, name, props) => {
+              if (props.name === "weatherValue") {
+                return [`${value} deg F`, null];
+              } else {
+                return [`${value} kWh`, null];
+              }
+            }}
             itemStyle={{
               color: "rgba(255, 255, 255, 0.9",
               background: "transparent",
@@ -151,6 +222,7 @@ const HourlyBarChart: React.FC<{
             labelStyle={{ color: "#FFFFFF", background: "transparent" }}
           />
           <XAxis
+            xAxisId={1}
             tick={{ fill: styles.barColorInactive }}
             dataKey="date"
             //interval="preserveStartEnd"
@@ -177,8 +249,9 @@ const HourlyBarChart: React.FC<{
             }}
           />
           <YAxis
-            tickCount={Math.min(8, Math.ceil(maxValue) + 1)}
+            yAxisId={"left"}
             domain={[0, Math.ceil(maxValue)]}
+            tickCount={Math.min(8, Math.ceil(maxValue) + 1)}
             unit={" kW"}
             allowDecimals={false}
             tick={{ fill: styles.barColorInactive }}
@@ -192,7 +265,7 @@ const HourlyBarChart: React.FC<{
               fill={styles.barColorInactive}
             />
           </YAxis>
-        </BarChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );
