@@ -23,9 +23,10 @@ import {
 
 const MonthlyBarChart: React.FC<{
   data: PowerDataItem[];
+  projectedBillKWH: number;
   onSelectedMonthChanged?: (selectedMonth: string | null) => void;
   onHighlightedMonthChanged?: (highlightedMonth: string | null) => void;
-}> = ({ data, onSelectedMonthChanged, onHighlightedMonthChanged }) => {
+}> = ({ data, projectedBillKWH, onSelectedMonthChanged, onHighlightedMonthChanged }) => {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(
     data.length - 1,
   );
@@ -40,10 +41,14 @@ const MonthlyBarChart: React.FC<{
     [data],
   );
 
+  // A little trickery here. Add a new set of values to data with only the last one being
+  // non-zero. This is our bill projection (see projectedBillKWH) in the bar chart.
+  const projectedData = data.map((month, idx) => ({...month, projectedValue: idx + 1 === data.length ? projectedBillKWH-month.value : 0 }));
+
   return (
     <ResponsiveContainer minHeight="300px">
       <BarChart
-        data={data.slice(-12)}
+        data={projectedData.slice(-12)}
         maxBarSize={50}
         margin={{
           top: 0,
@@ -54,6 +59,7 @@ const MonthlyBarChart: React.FC<{
       >
         <Bar
           dataKey="value"
+          stackId="1"
           onClick={(evt, idx) => {
             setSelectedIdx(selectedIdx === idx ? null : idx);
 
@@ -100,6 +106,51 @@ const MonthlyBarChart: React.FC<{
             />
           ))}
         </Bar>
+        <Bar
+          dataKey="projectedValue"
+          stackId="1"
+          onClick={(evt, idx) => {
+            setSelectedIdx(selectedIdx === idx ? null : idx);
+
+            if (onSelectedMonthChanged) {
+              onSelectedMonthChanged(
+                selectedIdx === idx ? null : monthNames[evt.month],
+              );
+            }
+          }}
+          onMouseEnter={(evt, idx) => {
+            setHighlightedIdx(idx);
+            if (onHighlightedMonthChanged) {
+              onHighlightedMonthChanged(
+                selectedIdx === idx ? null : monthNames[evt.month],
+              );
+            }
+          }}
+          onMouseLeave={(evt, idx) => {
+            setHighlightedIdx(null);
+            if (onHighlightedMonthChanged) {
+              onHighlightedMonthChanged(null);
+            }
+          }}
+          label={{
+            position: "top",
+            fill: "white",
+            opacity: 0.9, // FIXME: null values shouldnt have a label at all
+          }}
+        >
+          {projectedData.map((entry, idx) => (
+            <Cell
+              key={`bar-${idx}`}
+              cursor="pointer"
+              fill={
+                idx === selectedIdx
+                  ? styles.barColorActive
+                  : styles.barColorInactive
+              }
+              opacity={0.15}
+            />
+          ))}
+        </Bar>
         <Tooltip
           contentStyle={tooltipStyle}
           cursor={{
@@ -123,7 +174,8 @@ const MonthlyBarChart: React.FC<{
           tick={{ fill: styles.barColorInactive }}
           dataKey="date"
           tickFormatter={(date) => {
-            // start abbreviating months once there's enough columns
+            // Start abbreviating months once there's enough columns.
+            // With 4 or more months, merely use the first letter. 
             const monthNameFunction =
               data.length > 4
                 ? superAbbrevMonthNames

@@ -178,6 +178,7 @@ const App: React.FC = () => {
           />
           <MonthlyBarChart // TODO: show monthly lines only if there are months to compare...
             data={data.data.monthly}
+            projectedBillKWH={data.billing.projectedBillKWH}
             onSelectedMonthChanged={(selectedMonth) =>
               setSelectedMonth(selectedMonth)
             }
