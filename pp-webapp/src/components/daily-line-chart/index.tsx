@@ -83,7 +83,7 @@ const DailyLineChart: React.FC<{
         />
         {"cumulative"}
       </div>
-      <ResponsiveContainer minHeight="300px">
+      <ResponsiveContainer minHeight="300px" key={`${cumulative}`}>
         <LineChart
           data={data}
           margin={{
