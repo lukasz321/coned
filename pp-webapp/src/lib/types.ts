@@ -50,7 +50,7 @@ export interface PowerData {
     projectedBillDollars: number;
     billBreakdown: Record<string, number>;
   };
-};
+}
 
 // eslint-disable-next-line
 export namespace PowerData {
@@ -108,17 +108,17 @@ export interface WeatherDataItem {
 }
 
 export interface WeatherData {
-    data: WeatherDataItem[];
+  data: WeatherDataItem[];
 }
 
 // eslint-disable-next-line
 export namespace WeatherData {
   export function deserialize(rawData: RawWeatherData): WeatherData {
-    const data: WeatherDataItem[] = rawData.hourly.temperature_2m.map((t, i) => ({ value: t, date: new Date(rawData.hourly.time[i]*1000) }));
+    const data: WeatherDataItem[] = rawData.hourly.temperature_2m.map(
+      (t, i) => ({ value: t, date: new Date(rawData.hourly.time[i] * 1000) }),
+    );
     return {
-      data: data
+      data: data,
     };
   }
 }
-
-

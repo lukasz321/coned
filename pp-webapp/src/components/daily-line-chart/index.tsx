@@ -1,5 +1,4 @@
 import React, { Fragment, useMemo, useState } from "react";
-import Toggle from "react-toggle";
 import {
   Label,
   LineChart,
@@ -12,12 +11,15 @@ import {
 } from "recharts";
 
 import "App.css";
+import "./index.css";
 import styles from "styles";
 
 import { PowerDataItem } from "lib/types";
 import { monthNames } from "lib/constants";
 import { withOrdinalSuffix } from "lib/utils";
 import { tooltipStyle } from "lib/rechart-styles";
+
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 const DailyLineChart: React.FC<{
   data: PowerDataItem[];
@@ -71,17 +73,34 @@ const DailyLineChart: React.FC<{
           alignItems: "center",
           gap: "3px",
           zIndex: 2,
-          paddingLeft: "85px",
+          paddingLeft: "91px",
         }}
       >
-        <Toggle
-          defaultChecked={cumulative}
-          icons={false}
-          onChange={() => {
-            setCumulative(!cumulative);
+        <ToggleButtonGroup
+          color="primary"
+          value={cumulative ? "cumulative" : "daily"}
+          exclusive
+          onChange={(
+            event: React.MouseEvent<HTMLElement>,
+            newValue: string,
+          ) => {
+            switch (newValue) {
+              case "daily":
+                setCumulative(false);
+                break;
+              case "cumulative":
+                setCumulative(true);
+                break;
+            }
           }}
-        />
-        {"cumulative"}
+        >
+          <ToggleButton size="small" value="daily">
+            Daily
+          </ToggleButton>
+          <ToggleButton size="small" value="cumulative">
+            Cumulative
+          </ToggleButton>
+        </ToggleButtonGroup>
       </div>
       <ResponsiveContainer minHeight="300px" key={`${cumulative}`}>
         <LineChart

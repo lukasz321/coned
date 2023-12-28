@@ -85,4 +85,4 @@ export function numHoursToTimeString(width: number) {
   if (width <= 96) return `${width}h`;
   else if (width <= 30 * 24) return `${(width / 24).toFixed(0)}d`;
   else return `${(width / 24 / 7).toFixed(0)}wk`;
-};
+}

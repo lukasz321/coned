@@ -1,0 +1,13 @@
+button.MuiToggleButton-root {
+  background-color: transparent !important;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 2px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+button.MuiToggleButton-root.Mui-selected {
+  background-color: rgba(0, 204, 102, 0.7) !important;
+  color: #000;
+}

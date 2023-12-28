@@ -29,16 +29,12 @@ import BillBreakdownPieChart from "components/bill-breakdown-pie-chart";
 // In hourly, show a straight line this month's average? or last's?
 
 const Section: React.FC = (props) => {
-    return (
-    <div>
-    </div>
-
-    );
+  return <div></div>;
 };
 
 const App: React.FC = () => {
   const [data, setData] = useState<PowerData | null>(null);
-  
+
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
 
   // This is the month user sleects in MonthlyBarChart by clicking on a bar
@@ -64,7 +60,7 @@ const App: React.FC = () => {
   const handleOnBrushChange = useCallback((data: PowerDataItem[]) => {
     setSelectedBrushData({
       // Remove empty values from brush average (due to outages, etc)
-      average: calculateMean(data.map((d) => d.value).filter((v) => v > 0)), 
+      average: calculateMean(data.map((d) => d.value).filter((v) => v > 0)),
       width: data.length,
       firstIndexDate: data[0].date,
       lastIndexDate: data[data.length - 1].date,
@@ -99,7 +95,7 @@ const App: React.FC = () => {
         console.error(error);
       });
   }, []);
-  
+
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {

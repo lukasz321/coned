@@ -26,7 +26,12 @@ const MonthlyBarChart: React.FC<{
   projectedBillKWH: number;
   onSelectedMonthChanged?: (selectedMonth: string | null) => void;
   onHighlightedMonthChanged?: (highlightedMonth: string | null) => void;
-}> = ({ data, projectedBillKWH, onSelectedMonthChanged, onHighlightedMonthChanged }) => {
+}> = ({
+  data,
+  projectedBillKWH,
+  onSelectedMonthChanged,
+  onHighlightedMonthChanged,
+}) => {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(
     data.length - 1,
   );
@@ -43,7 +48,11 @@ const MonthlyBarChart: React.FC<{
 
   // A little trickery here. Add a new set of values to data with only the last one being
   // non-zero. This is our bill projection (see projectedBillKWH) in the bar chart.
-  const projectedData = data.map((month, idx) => ({...month, projectedValue: idx + 1 === data.length ? projectedBillKWH-month.value : 0 }));
+  const projectedData = data.map((month, idx) => ({
+    ...month,
+    projectedValue:
+      idx + 1 === data.length ? projectedBillKWH - month.value : 0,
+  }));
 
   return (
     <ResponsiveContainer minHeight="300px">
@@ -175,7 +184,7 @@ const MonthlyBarChart: React.FC<{
           dataKey="date"
           tickFormatter={(date) => {
             // Start abbreviating months once there's enough columns.
-            // With 4 or more months, merely use the first letter. 
+            // With 4 or more months, merely use the first letter.
             const monthNameFunction =
               data.length > 4
                 ? superAbbrevMonthNames

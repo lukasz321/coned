@@ -5,7 +5,6 @@ import {
   Line,
   Label,
   Cell,
-  BarChart,
   XAxis,
   YAxis,
   CartesianGrid,
