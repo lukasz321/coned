@@ -15,6 +15,7 @@ import DailyLineChart from "components/daily-line-chart";
 import HourlyBarChart from "components/hourly-bar-chart";
 import MonthlyBarChart from "components/monthly-bar-chart";
 import BillBreakdownPieChart from "components/bill-breakdown-pie-chart";
+import WeekBubbleChart from "components/week-bubble-chart";
 
 //TODO: calculate time of use vs regular pricing
 // https://www.coned.com/en/accounts-billing/your-bill/time-of-use
@@ -28,8 +29,20 @@ import BillBreakdownPieChart from "components/bill-breakdown-pie-chart";
 
 // In hourly, show a straight line this month's average? or last's?
 
-const Section: React.FC = (props) => {
-  return <div></div>;
+const Section: React.FC<{
+  transparent?: boolean;
+  header?: string;
+  children?: React.ReactNode;
+}> = ({ header, children, transparent = false }) => {
+  return (
+    <div className={transparent ? "section transparent" : "section"} >
+
+      {header && <div style={{ fontSize: "2em", paddingLeft: "1em", paddingBottom: "0.8em", marginTop: "-0.5em", fontWeight: 250
+
+      }}>{header}</div>}
+      {children}
+    </div>
+  );
 };
 
 const App: React.FC = () => {
@@ -128,7 +141,7 @@ const App: React.FC = () => {
     <div className="main">
       <AppBar data={data} />
 
-      <div className="section">
+      <Section header={"Hourly Breakdown"}>
         <BrushDataSentenceSummary selectedBrushData={selectedBrushData} />
 
         <HourlyBarChart
@@ -136,9 +149,9 @@ const App: React.FC = () => {
           dataShown={handleOnBrushChange}
           weatherData={weatherData?.data ? weatherData.data : []}
         />
-      </div>
+      </Section>
 
-      <div className="section transparent">
+      <Section transparent={true}>
         <div
           style={{
             display: "flex",
@@ -181,9 +194,9 @@ const App: React.FC = () => {
             />
           </div>
         </div>
-      </div>
+      </Section>
 
-      <div className="section">
+      <Section header={"Monthly Breakdown"}>
         <div className="month-panel">
           <DailyLineChart
             data={data.data.daily}
@@ -201,7 +214,11 @@ const App: React.FC = () => {
             }
           />
         </div>
-      </div>
+      </Section>
+
+      <Section header={"Past Week in Detail"}>
+        <WeekBubbleChart data={data.data.hourly} />
+      </Section>
     </div>
   ) : (
     <Backdrop

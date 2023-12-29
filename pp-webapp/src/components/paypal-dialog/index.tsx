@@ -32,7 +32,7 @@ const PaypalDialog: React.FC = () => {
 
   return (
     <Fragment>
-      <Tooltip title="Want to contribute to our bill? Here's the PayPal.">
+      <Tooltip title="Click here if you'd like to contribute to our bill via PayPal.">
         <IconButton size="large">
           <AttachMoney
             style={{ color: "#fff", opacity: 0.8 }}

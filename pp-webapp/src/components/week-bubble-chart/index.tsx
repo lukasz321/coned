@@ -42,7 +42,7 @@ const WeekBubbleChart: React.FC<{
       date.setHours(hour, 0, 0, 0);
       reversedData.push({
         date: date,
-        value: -1,
+        value: 0,
         month: latestDatapoint.month,
         day: latestDatapoint.day,
         hour: hour,
@@ -76,7 +76,7 @@ const WeekBubbleChart: React.FC<{
   }, [sortedData]);
 
   const domain = [0, maxDomain];
-  const range = [0, 400];
+  const range = [0, maxDomain*150];
 
   return (
     sortedData && (
@@ -96,7 +96,7 @@ const WeekBubbleChart: React.FC<{
                   type="category"
                   dataKey="humanHour"
                   interval={0}
-                  tick={{ fontSize: idx === 6 ? 16 : 0 }}
+                  tick={{ fill: "#fff", fontSize: idx === 6 ? 16 : 0 }}
                   tickLine={{ transform: "translate(0, -6)" }}
                 />
                 <YAxis
@@ -112,7 +112,8 @@ const WeekBubbleChart: React.FC<{
                     value: `${dayData[0].humanDay}`,
                     position: "insideTopRight",
                     angle: 0,
-                    fontSize: 14,
+                    fontSize: "1rem",
+                    fill: "#fff",
                   }}
                 />
                 {/*Make sure yesterday actually happened yesterday*/}
@@ -125,6 +126,33 @@ const WeekBubbleChart: React.FC<{
                 <Tooltip
                   cursor={{ strokeDasharray: "3 3" }}
                   wrapperStyle={{ zIndex: 100 }}
+                    contentStyle={tooltipStyle}
+                    labelStyle={{ color: "#FFFFFF", background: "transparent" }}
+                    itemStyle={{
+                      color: "rgba(255, 255, 255, 0.9",
+                      background: "transparent",
+                      fontWeight: "350",
+                    }}
+                    formatter={(value, name, props) => {
+                        let _name = "";
+                        let _value = null;
+                        switch (name) {
+                            case "humanHour":
+                               _name = "Time";
+                               _value = value as number;
+                                return [`${value}`, _name];
+                            case "value":
+                               _name = "Used";
+                               _value = `${value} kWh`;
+                                return [_value, _name];
+                        }
+
+                                return [name, "Day"];
+
+                        }}
+                    labelFormatter={(label: number) => {
+                      return "";
+                    }}
                 />
                 <Scatter
                   data={dayData}
@@ -138,11 +166,11 @@ const WeekBubbleChart: React.FC<{
                 paddingTop: "3px",
                 width: "9em",
                 display: "flex",
-                color: "#d3d3d3",
+                color: "#fff",
               }}
             >
               {`x\u0305 = ${calculateMean(
-                dayData.map((d: any) => d.value).filter((d: number) => d >= 0),
+                dayData.map((d: any) => d.value).filter((d: number) => d > 0),
               ).toFixed(2)} kWh`}
             </div>
           </div>
