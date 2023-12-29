@@ -29,6 +29,7 @@ app.add_middleware(
 
 data_handler = DataHandler()
 
+
 @app.get("/")
 async def root():
     try:
@@ -41,7 +42,9 @@ async def root():
         )
 
     # We want to inform user on how current the data is -
-    db_last_modified = time.strftime("%B %d, %Y %I:%M:%S %p", time.localtime(data_handler.last_modified))
+    db_last_modified = time.strftime(
+        "%B %d, %Y %I:%M:%S %p", time.localtime(data_handler.last_modified)
+    )
     db_last_modified_seconds_ago = int(time.time() - data_handler.last_modified)
 
     # Some health indicators @ systemd services -
@@ -50,11 +53,12 @@ async def root():
     for service in services:
         services_health[service] = systemd_service_is_active(service)
 
-    content={
+    content = {
         "last_updated": db_last_modified,
         "last_updated_seconds_ago": db_last_modified_seconds_ago,
         "systemd": services_health,
         "projected_bill": data.bill_breakdown(),
+        "base_usage": data.base_usage(),
         "data": {
             "hourly": PowerData.to_json(data.hourly()),
             "monthly": PowerData.to_json(data.monthly()),
@@ -78,9 +82,11 @@ async def root():
         status_code=200,
     )
 
+
 def shutdown_server():
     print("Shutting down the server...")
     uvicorn.server.should_exit = True
+
 
 def main(port: int = 8000):
     signal.signal(signal.SIGINT, lambda signum, frame: shutdown_server())

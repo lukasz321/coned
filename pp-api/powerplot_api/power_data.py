@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import pytz
 import argparse
+import matplotlib.pyplot as plt
 
 
 class PowerData:
@@ -94,6 +95,16 @@ class PowerData:
         )
         result = df.groupby("time_of_day", observed=False)["value"].mean().round(2)
         return result.to_dict()
+
+    def base_usage(self):
+        df = self.hourly().copy()
+
+        # the value that occurs the most must be the base
+        # "fridge only" usage, so no matter what we would pay this amount
+        hist = df["value"].value_counts(bins=100, sort=True)
+        base_kwh = hist.index[0].mid
+        base_dollars = base_kwh * 31 * 24 * 0.354 + 18
+        return {"kwh": base_kwh, "dollars": base_dollars}
 
     def hourly_mean(self):
         df = self.hourly().copy()
@@ -191,4 +202,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     p = PowerData(args.csv_data_filepath)
+
+    p.hourly_histogram()
     print(p.bill_breakdown())

@@ -18,7 +18,7 @@ class DataHandler:
 
     def __init__(self):
         self.data: PowerData = None
-        self.last_modified: float = None # epoch utc timestamp
+        self.last_modified: float = None  # epoch utc timestamp
 
         self.data_lock = threading.Lock()
         self.last_modified_lock = threading.Lock()
