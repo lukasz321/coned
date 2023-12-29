@@ -35,11 +35,20 @@ const Section: React.FC<{
   children?: React.ReactNode;
 }> = ({ header, children, transparent = false }) => {
   return (
-    <div className={transparent ? "section transparent" : "section"} >
-
-      {header && <div style={{ fontSize: "2em", paddingLeft: "1em", paddingBottom: "0.8em", marginTop: "-0.5em", fontWeight: 250
-
-      }}>{header}</div>}
+    <div className={transparent ? "section transparent" : "section"}>
+      {header && (
+        <div
+          style={{
+            fontSize: "2em",
+            paddingLeft: "1em",
+            paddingBottom: "0.8em",
+            marginTop: "-0.7em",
+            fontWeight: 250,
+          }}
+        >
+          {header}
+        </div>
+      )}
       {children}
     </div>
   );

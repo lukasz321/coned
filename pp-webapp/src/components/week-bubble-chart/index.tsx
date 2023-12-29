@@ -13,7 +13,7 @@ import "App.css";
 import styles from "styles";
 
 import { PowerDataItem } from "lib/types";
-import { monthNames, hourlyPeriods } from "lib/constants";
+import { hourlyPeriods } from "lib/constants";
 import { toWeekdayName, calculateMean } from "lib/utils";
 import { tooltipStyle } from "lib/rechart-styles";
 
@@ -21,6 +21,7 @@ const WeekBubbleChart: React.FC<{
   data: PowerDataItem[];
   selectedMonth?: string | null;
 }> = ({ data, selectedMonth }) => {
+  
   // Do past 10 days partOfTheDay breakdown?
   const sortedData = useMemo(() => {
     const currentDay: Date = new Date();
@@ -36,6 +37,7 @@ const WeekBubbleChart: React.FC<{
     const reversedData = data
       .slice(data.length - 7 * 24, data.length)
       .filter((d) => d.date.getTime() > weekEarlier.getTime());
+    
     // Complete the current day
     for (let hour = latestDatapoint.hour + 1; hour <= 23; hour++) {
       const date: Date = new Date(latestDatapoint.date);
@@ -73,10 +75,10 @@ const WeekBubbleChart: React.FC<{
 
   const maxDomain = useMemo(() => {
     return Math.max(...Object.entries(data).map(([k, d]) => d.value));
-  }, [sortedData]);
+  }, [data]);
 
   const domain = [0, maxDomain];
-  const range = [0, maxDomain*150];
+  const range = [0, maxDomain * 150];
 
   return (
     sortedData && (
@@ -126,33 +128,32 @@ const WeekBubbleChart: React.FC<{
                 <Tooltip
                   cursor={{ strokeDasharray: "3 3" }}
                   wrapperStyle={{ zIndex: 100 }}
-                    contentStyle={tooltipStyle}
-                    labelStyle={{ color: "#FFFFFF", background: "transparent" }}
-                    itemStyle={{
-                      color: "rgba(255, 255, 255, 0.9",
-                      background: "transparent",
-                      fontWeight: "350",
-                    }}
-                    formatter={(value, name, props) => {
-                        let _name = "";
-                        let _value = null;
-                        switch (name) {
-                            case "humanHour":
-                               _name = "Time";
-                               _value = value as number;
-                                return [`${value}`, _name];
-                            case "value":
-                               _name = "Used";
-                               _value = `${value} kWh`;
-                                return [_value, _name];
-                        }
+                  contentStyle={tooltipStyle}
+                  labelStyle={{ color: "#FFFFFF", background: "transparent" }}
+                  itemStyle={{
+                    color: "rgba(255, 255, 255, 0.9",
+                    background: "transparent",
+                    fontWeight: "350",
+                  }}
+                  formatter={(value, name, props) => {
+                    let _name = "";
+                    let _value = null;
+                    switch (name) {
+                      case "humanHour":
+                        _name = "Time";
+                        _value = value as number;
+                        return [`${value}`, _name];
+                      case "value":
+                        _name = "Used";
+                        _value = `${value} kWh`;
+                        return [_value, _name];
+                    }
 
-                                return [name, "Day"];
-
-                        }}
-                    labelFormatter={(label: number) => {
-                      return "";
-                    }}
+                    return [name, "Day"];
+                  }}
+                  labelFormatter={(label: number) => {
+                    return "";
+                  }}
                 />
                 <Scatter
                   data={dayData}
