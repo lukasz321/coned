@@ -121,12 +121,12 @@ if __name__ == "__main__":
         if args.oneshot:
             break
 
-        next_poll_in = config.get("poll_frequency_hours", 12) * 3600
+        next_poll_in = config.get("poll_frequency_hours", 6) * 3600
         next_poll_date = datetime.now() + timedelta(seconds=next_poll_in)
 
-        NUM_UPDATES = 3
+        NUM_UPDATES = 4
         for i in range(0, NUM_UPDATES):
             print(
-                f"Next poll in {round(1/(NUM_UPDATES-i)*next_poll_in/3600, 1)} hour(s) on {next_poll_date}."
+                f"Next poll in {round(1/(i+1)*next_poll_in/3600, 1)} hour(s) on {next_poll_date}."
             )
             time.sleep(next_poll_in / NUM_UPDATES)
