@@ -144,21 +144,21 @@ class PowerData:
         # a little more dynamic based on the recent trends. This weighing should diminish as
         # the month goes on, however.
         recent_average_daily_usage_kwh = df_daily.tail(7 + 1).head(7)["value"].mean()
-
+        
         weighed_daily_usage_kwh = (
-            recent_average_daily_usage_kwh * (31 - last_data_day) / 31
-            + average_daily_usage_kwh * last_data_day / 31
+            recent_average_daily_usage_kwh * (NUM_TRAILING_DAYS - last_data_day)
+            + average_daily_usage_kwh * last_data_day
         )
 
-        extrapolated_usage_kwh = weighed_daily_usage_kwh * 31
-
+        extrapolated_usage_kwh = weighed_daily_usage_kwh
+      
         # These charges are supplier dependent most likely.
         # Introduce the notion of supplier to the API once new integrations are added.
         if "coned" == "coned":
             basic_service_charge = 18.08
-            delivery_charge = 0.15553 * extrapolated_usage_kwh
-            system_benefit_charge = 0.00519 * extrapolated_usage_kwh
-            supply_charge = 0.09485 * extrapolated_usage_kwh
+            delivery_charge = 0.1616 * extrapolated_usage_kwh
+            system_benefit_charge = 0.0056 * extrapolated_usage_kwh
+            supply_charge = 0.121 * extrapolated_usage_kwh
             grt_and_surcharges = 0.045 * (
                 basic_service_charge
                 + delivery_charge
@@ -203,5 +203,4 @@ if __name__ == "__main__":
 
     p = PowerData(args.csv_data_filepath)
 
-    p.hourly_histogram()
-    print(p.bill_breakdown())
+    p.bill_breakdown()
