@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import pytz
 import argparse
-import matplotlib.pyplot as plt
 
 
 class PowerData:
